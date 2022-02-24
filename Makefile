@@ -1,4 +1,4 @@
-.PHONY: help lint test clean install install-dev
+.PHONY: help lint test clean install install-dev docs
 
 help:  ##        Show this help
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
@@ -18,9 +18,13 @@ lint:  ##        Format and lint caligraphy
 test:  ##        Test caligraphy
 	pytest --cov=caligraphy --cov-report=html --cov-fail-under=95 -W ignore::DeprecationWarning
 
-clean:  ##       Remove test artifacts
+clean:  ##       Remove test and doc artifacts
 	rm -rf .coverage || true
 	rm -rf htmlcov || true
 	rm -rf .pytest_cache || true
 	rm -rf caligraphy/__pycache__ || true
 	rm -rf tests/__pycache__ || true
+	rm -rf docs/build || true
+
+docs:  ##        Generate documentation for caligraphy
+	cd docs && make html
