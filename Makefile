@@ -3,6 +3,14 @@
 help:  ## Show this help
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
+install:  ## Install poetry if needed and use it to install caligraphy
+	pip install poetry
+	poetry install --no-dev
+
+install-dev:  ## Install poetry if needed and use it to install caligraphy and dev dependencies
+	pip install poetry
+	poetry install
+
 lint:  ## Format and lint caligraphy
 	black caligraphy
 	pylint caligraphy
