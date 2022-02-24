@@ -35,7 +35,6 @@ TOKEN_TYPES = {
     "NAME": r"(?:[a-zA-Z0-9]|_|\.)*",
     "STRING": r".*",
     "NEWLINE": r"\n",
-    "MISC": r".*",
 }
 
 TOKEN_FORMATTERS = [
@@ -84,7 +83,6 @@ def detect_type(word: str) -> Token:
     for name, pattern in TOKEN_TYPES.items():
         if re.fullmatch(pattern, word):
             return Token(name, word)
-    return None
 
 
 class Token:
@@ -102,15 +100,6 @@ class Token:
             self.t_value = int(t_value[:-7])
         else:
             self.t_value = t_value
-
-    def __str__(self) -> str:
-        """Get string representation of Token
-
-        Returns:
-            str: String representation of Token
-        """
-
-        return f"<{self.t_type}:{self.t_value}>"
 
     def __repr__(self) -> str:
         """Get string representation of Token

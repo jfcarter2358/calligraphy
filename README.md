@@ -28,7 +28,7 @@ If you want to install from a source distribution, extract the tarball and run
 the following command (this requires poetry to be installed)
 
 ```
-poetry install --no-dev .
+poetry install --no-dev
 ```
 
 ## Documentation
@@ -37,10 +37,16 @@ The documentation lives at https://caligraphy.readthedocs.io/.
 
 ## Testing
 
-We use `pytest` and `coverage` for running the test suite. You should be able to install them with
+We use `pytest` and `pytest-cov` for running the test suite. You should be able to install them with
 
 ```
-pip install pytest coverage
+pip install pytest pytest-cov
+```
+
+or you can install caligraphy alongside those packages with
+
+```
+poetry install
 ```
 
 To run the test suite, you can do
@@ -48,6 +54,14 @@ To run the test suite, you can do
 ```
 make test
 ```
+
+This will produce an html coverage report under the `htmlcov` directory.
+
+## To Do
+
+- [x] Add indentation to explain output
+- [ ] Enable sourcing of other caligraphy scripts
+- [ ] Token output flag
 
 ## License
 

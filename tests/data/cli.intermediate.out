@@ -76,4 +76,5 @@ def search ():
         print ("search string found")
     else:
         print ("Could not find search string")
+    env.FOO = sh ("echo \"bar\"", get_stdout = True)
 search ()

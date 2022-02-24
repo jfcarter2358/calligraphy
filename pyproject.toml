@@ -1,8 +1,13 @@
 [tool.poetry]
 name = "caligraphy"
 version = "0.1.0"
-description = ""
+description = "A hybrid language for a modern approach to shell scripting"
 authors = ["John Carter <jfcarter2358@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/jfcarter2358/caligraphy"
+homepage = "caligraphy.readthedocs.io"
+keywords = ["scripting", "caligraphy"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -11,8 +16,8 @@ rich = "^11.2.0"
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 black = "^22.1.0"
-coverage = "^6.3.2"
 pylint = "^2.12.2"
+pytest-cov = "^3.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

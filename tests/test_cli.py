@@ -34,16 +34,13 @@ class MockIO():
 
 here = os.path.dirname(os.path.abspath(__file__))
 
-def test_version():
-    assert __version__ == '0.1.0'
-
-def test_caligraphy_version(capfd):
+def test_version(capfd):
     cli.version()
     out, _ = capfd.readouterr()
 
     assert out == f"Caligraphy: {__version__}\n"
 
-def test_caligraphy_explain(capfd):
+def test_explain(capfd):
     file_path = os.path.join(here, 'data', 'data.txt')
 
     with open(os.path.join(here, 'data', 'cli.explain.out')) as out_file:
@@ -65,7 +62,7 @@ def test_caligraphy_explain(capfd):
 
     assert out == explain_out
 
-def test_caligraphy_intermediate(capfd):
+def test_intermediate(capfd):
     file_path = os.path.join(here, 'data', 'data.txt')
 
     with open(os.path.join(here, 'data', 'cli.intermediate.out')) as out_file:
@@ -89,7 +86,7 @@ def test_caligraphy_intermediate(capfd):
     assert out == intermediate_out
     
 
-def test_caligraphy_execute(capfd):
+def test_execute(capfd):
     file_path = os.path.join(here, 'data', 'data.txt')
 
     with open(os.path.join(here, 'data', 'cli.execute.out')) as out_file:

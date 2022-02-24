@@ -3,14 +3,15 @@
 help:  ## Show this help
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
-lint:  ## Format and lint the templater script
+lint:  ## Format and lint caligraphy
 	black caligraphy
 	pylint caligraphy
 
-test:  ## Test the templater script
-	coverage run -m pytest -vv
-	coverage report
-	coverage html
+test:  ## Test caligraphy
+	pytest --cov=caligraphy --cov-report=html --cov-fail-under=95
 
 clean:  ## Remove test artifacts
-	rm -rf .coverage 
+	rm -rf .coverage || true
+	rm -rf htmlcov || true
+	rm -rf .pytest_cache || true
+	rm -rf caligraphy/__pycache__ || true

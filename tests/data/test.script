@@ -33,4 +33,6 @@ def search():
     else:
         print('Could not find search string')
 
+    env.FOO = $(echo "bar")
+
 search()
