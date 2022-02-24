@@ -1,0 +1,79 @@
+import subprocess
+import os
+import sys
+
+sys.argv = ['caligraphy', 
+'<FILE_PATH>', 
+'Plagueis']
+
+
+class Environment:
+    def __init__(self):
+        pass
+
+    def __getattribute__(self, name):
+        return os.getenv(name)
+
+    def __setattr__(self, name, value):
+        os.environ = value
+
+
+RC = 0
+env = Environment()
+
+
+def sh(cmd, get_rc=False, get_stdout=False):
+    env_marker = "~~~~START_ENVIRONMENT_HERE~~~~"
+    global RC
+    cmd = cmd + f" && echo {env_marker} && printenv"
+    stdout = []
+    env = []
+
+    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, 
+env=os.environ.copy())
+    # output = p.communicate()[0].decode('utf-8').splitlines()
+    # grab and return the exit code
+    is_stdout = True
+    for line in iter(p.stdout.readline, b""):
+        str_line = line.decode("utf-8")[:-1]
+        if str_line == env_marker:
+            is_stdout = False
+        elif is_stdout:
+            print(str_line)
+            stdout.append(str_line)
+        else:
+            env.append(str_line)
+    p.stdout.close()
+    p.wait()
+    RC = p.poll()
+
+    for line in env:
+        line = line.strip().split("=")
+        if len(line) > 1:
+            os.environ] = line[1]
+    if get_stdout:
+        return "\n".join(stdout)
+    if get_rc:
+        return RC
+
+
+
+import sys
+import rich as rch
+dct = {"a": "b"}
+lst = ["a", "b"]
+tup = ("a", "b")
+x = 5 + 4
+def search ():
+    env.SEARCH_PATH = sys.argv [1]
+    env.SEARCH_TERM = sys.argv [2]
+    sh ("    echo \"Searching in ${SEARCH_PATH}\"")
+    sh ("    echo \"Searching for ${SEARCH_TERM}\"")
+    print (RC)
+    rch.print ("foobar")
+    if sh ("cat \"${SEARCH_PATH}\" | grep -q \"${SEARCH_TERM}\"", get_rc = True)
+== 0:
+        print ("search string found")
+    else:
+        print ("Could not find search string")
+search ()

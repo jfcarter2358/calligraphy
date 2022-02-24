@@ -1,0 +1,36 @@
+import sys
+import rich as rch
+
+# This is a comment
+
+dct = {
+    "a": "b"
+}
+
+lst = [
+    "a",
+    "b"
+]
+
+tup = (
+    "a",
+    "b"
+)
+
+x = 5 + \
+    4
+
+def search():
+    env.SEARCH_PATH = sys.argv[1]
+    env.SEARCH_TERM = sys.argv[2]
+    echo "Searching in ${SEARCH_PATH}"
+    echo "Searching for ${SEARCH_TERM}"
+    print($?)
+    rch.print("foobar")
+
+    if $(cat "${SEARCH_PATH}" | grep -q "${SEARCH_TERM}") == 0:
+        print('search string found')
+    else:
+        print('Could not find search string')
+
+search()
