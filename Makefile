@@ -23,3 +23,4 @@ clean:  ##       Remove test artifacts
 	rm -rf htmlcov || true
 	rm -rf .pytest_cache || true
 	rm -rf caligraphy/__pycache__ || true
+	rm -rf tests/__pycache__ || true

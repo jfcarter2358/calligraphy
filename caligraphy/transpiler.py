@@ -251,7 +251,7 @@ def convert(
         if types[idx] == "BASH":
             # Wrap bash line in sh function call
             lines[idx] = [line[0]] + [
-                tokenizer.Token("NAME", "sh"),
+                tokenizer.Token("NAME", "shell"),
                 tokenizer.Token("LPAREN", "("),
                 tokenizer.Token("STRING", dump(line)[1:]),
                 tokenizer.Token("RPAREN", ")"),
@@ -303,7 +303,7 @@ def convert(
                         + line[rc_idx + 1 :]
                     )
                 else:
-                    line[shell_idx] = tokenizer.Token("NAME", "sh")
+                    line[shell_idx] = tokenizer.Token("NAME", "shell")
                     cmd = dump(line[l_paren_idx + 1 : r_paren_idx])
                     if is_if:
                         # Wrap shell call in function with get_rc argument True
