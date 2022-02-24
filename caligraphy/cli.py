@@ -158,7 +158,7 @@ def cli() -> None:
                     "[bold red][ERROR][/bold red] :: Both the `intermediate` and `explain` options cannot be set at the same time."
                 )
                 sys.exit(1)
-            continue # pragma: no cover
+            continue  # pragma: no cover
         if arg in ("-e", "--explain"):
             flag_explain = True
             if flag_intermediate:
@@ -166,7 +166,7 @@ def cli() -> None:
                     "[bold red][ERROR][/bold red] :: Both the `intermediate` and `explain` options cannot be set at the same time."
                 )
                 sys.exit(1)
-            continue # pragma: no cover
+            continue  # pragma: no cover
         if not program_path:
             program_path = arg
             continue
@@ -192,4 +192,4 @@ def cli() -> None:
 
 
 if __name__ == "__main__":
-    cli() # pragma: no cover
+    cli()  # pragma: no cover

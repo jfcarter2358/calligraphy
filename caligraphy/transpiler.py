@@ -176,7 +176,7 @@ def explain(
 
     # Generate language annotations
     for idx, line in enumerate(lines):
-        indent = ' ' * int(line[0].t_value)
+        indent = " " * int(line[0].t_value)
         if types[idx] == "BASH":
             # Format Bash line
             output += f"[blue]BASH[/blue]   | [blue]{indent}{dump(line[1:])}[/blue]\n"
@@ -220,7 +220,9 @@ def explain(
                     output += f"[cyan]MIX[/cyan]    | [green]{indent}{dump(line[1:shell_idx])}[/green] [blue]{dump(line[shell_idx:r_paren_idx+1])}[/blue] [green]{dump(line[r_paren_idx + 1:])}[/green]\n"
             else:
                 # Format Python line
-                output += f"[green]PYTHON[/green] | [green]{indent}{dump(line[1:])}[/green]\n"
+                output += (
+                    f"[green]PYTHON[/green] | [green]{indent}{dump(line[1:])}[/green]\n"
+                )
 
     return output
 

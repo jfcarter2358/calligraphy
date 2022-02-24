@@ -83,6 +83,7 @@ def detect_type(word: str) -> Token:
     for name, pattern in TOKEN_TYPES.items():
         if re.fullmatch(pattern, word):
             return Token(name, word)
+    return None  # pragma: no cover
 
 
 class Token:
@@ -100,6 +101,9 @@ class Token:
             self.t_value = int(t_value[:-7])
         else:
             self.t_value = t_value
+
+    def __str__(self) -> str:
+        return self.__repr__()
 
     def __repr__(self) -> str:
         """Get string representation of Token
