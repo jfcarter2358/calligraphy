@@ -8,7 +8,7 @@ lint:  ## Format and lint caligraphy
 	pylint caligraphy
 
 test:  ## Test caligraphy
-	pytest --cov=caligraphy --cov-report=html --cov-fail-under=95
+	pytest --cov=caligraphy --cov-report=html --cov-fail-under=95 -W ignore::DeprecationWarning
 
 clean:  ## Remove test artifacts
 	rm -rf .coverage || true
