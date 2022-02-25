@@ -1,9 +1,10 @@
-usage: calpgraphy [option] [file | -] [arg]
+usage: calligraphy [option] [file | -] [arg]
     options:
         -h, --help            Show this help message and exit
         -e, --explain         Parse input and show the language breakdown of the source
         -v, --version         Print out the version of Calligraphy and exit
         -i, --intermediate    Print out the compiled Python code and exit
+        -n, --no-ansi         Print without ANSI terminal colors
     arguments:
         file                  Program read from script file
         -                     Program read from stdin
