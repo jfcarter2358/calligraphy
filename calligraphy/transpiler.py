@@ -253,7 +253,7 @@ def convert(
         if types[idx] == "BASH":
             # Wrap bash line in sh function call
             cmd = dump(line[1:])
-            cmd = re.sub(r'env\.((?:[a-zA-Z0-9]|_)*)', '${\g<1>}', cmd)
+            cmd = re.sub(r"env\.((?:[a-zA-Z0-9]|_)*)", r"${\g<1>}", cmd)
             lines[idx] = [line[0]] + [
                 tokenizer.Token("NAME", "shell"),
                 tokenizer.Token("LPAREN", "("),
@@ -309,7 +309,7 @@ def convert(
                 else:
                     line[shell_idx] = tokenizer.Token("NAME", "shell")
                     cmd = dump(line[l_paren_idx + 1 : r_paren_idx])
-                    cmd = re.sub(r'env\.((?:[a-zA-Z0-9]|_)*)', '${\g<1>}', cmd)
+                    cmd = re.sub(r"env\.((?:[a-zA-Z0-9]|_)*)", r"${\g<1>}", cmd)
                     if is_if:
                         # Wrap shell call in function with get_rc argument True
                         lines[idx] = (
