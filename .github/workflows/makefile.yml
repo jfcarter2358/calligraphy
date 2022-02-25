@@ -19,9 +19,16 @@ jobs:
         uses: abatilo/actions-poetry@v2.0.0
         with:
           poetry-version: ${{ matrix.poetry-version }}
-      - name: Install deps
-        run: make install-dev
-      - name: Lint
-        run: make lint
-      - name: Test
-        run: make test
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pylint pytest black
+      - name: Install Calligraphy
+        run: |
+          pip install .
+      - name: Lint code
+        run: |
+          pylint calligraphy_scripting
+      - name: Run tests
+        run: |
+          pytest --cov=calligraphy_scripting --cov-report=html --cov-fail-under=95 -W ignore::DeprecationWarning
