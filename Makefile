@@ -12,17 +12,17 @@ install-dev:  ## Install poetry if needed and use it to install calligraphy and 
 	poetry install
 
 lint:  ##        Format and lint calligraphy
-	black calligraphy
-	pylint calligraphy
+	black calligraphy_scripting
+	pylint calligraphy_scripting
 
 test:  ##        Test calligraphy
-	pytest --cov=calligraphy --cov-report=html --cov-fail-under=95 -W ignore::DeprecationWarning
+	pytest --cov=calligraphy_scripting --cov-report=html --cov-fail-under=95 -W ignore::DeprecationWarning
 
 clean:  ##       Remove test and doc artifacts
 	rm -rf .coverage || true
 	rm -rf htmlcov || true
 	rm -rf .pytest_cache || true
-	rm -rf calligraphy/__pycache__ || true
+	rm -rf calligraphy_scripting/__pycache__ || true
 	rm -rf tests/__pycache__ || true
 	rm -rf docs/build || true
 

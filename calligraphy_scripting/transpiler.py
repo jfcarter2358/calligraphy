@@ -7,6 +7,10 @@ from calligraphy_scripting import tokenizer
 
 NO_LEFT_PAD = ["COLON", "RPAREN", "RBRACE", "RBRACKET", "COMMA"]
 NO_RIGHT_PAD = ["LPAREN", "LBRACE", "LBRACKET", "SHELL"]
+ANSI_GREEN = "\033[32m"
+ANSI_BLUE = "\033[34m"
+ANSI_CYAN = "\033[36m"
+ANSI_RESET = "\033[0m"
 
 
 def dump(tokens: list[tokenizer.Token]) -> str:
@@ -181,7 +185,7 @@ def explain(
         if types[idx] == "BASH":
             # Format Bash line
             cmd = dump(line[1:])
-            output += f"[blue]BASH[/blue]   | [blue]{indent}{cmd}[/blue]\n"
+            output += f"{ANSI_BLUE}BASH{ANSI_RESET}   | {ANSI_BLUE}{indent}{cmd}{ANSI_RESET}\n"
         else:
             is_shell = False
             shell_idx = -1
@@ -216,15 +220,13 @@ def explain(
             if is_shell:
                 if rc_idx != -1:
                     # Format mixed line when checking bash RC
-                    output += f"[cyan]MIX[/cyan]    | [green]{indent}{dump(line[1:shell_idx])}[/green] [blue]$?[/blue] [green]{dump(line[rc_idx + 1:])}[/green]\n"
+                    output += f"{ANSI_CYAN}MIX{ANSI_RESET}    | {ANSI_GREEN}{indent}{dump(line[1:shell_idx])}{ANSI_RESET} {ANSI_BLUE}$?{ANSI_RESET} {ANSI_GREEN}{dump(line[rc_idx + 1:])}{ANSI_RESET}\n"
                 else:
                     # Format mixed line when making shell call
-                    output += f"[cyan]MIX[/cyan]    | [green]{indent}{dump(line[1:shell_idx])}[/green] [blue]{dump(line[shell_idx:r_paren_idx+1])}[/blue] [green]{dump(line[r_paren_idx + 1:])}[/green]\n"
+                    output += f"{ANSI_CYAN}MIX{ANSI_RESET}    | {ANSI_GREEN}{indent}{dump(line[1:shell_idx])}{ANSI_RESET} {ANSI_BLUE}{dump(line[shell_idx:r_paren_idx+1])}{ANSI_RESET} {ANSI_GREEN}{dump(line[r_paren_idx + 1:])}{ANSI_RESET}\n"
             else:
                 # Format Python line
-                output += (
-                    f"[green]PYTHON[/green] | [green]{indent}{dump(line[1:])}[/green]\n"
-                )
+                output += f"{ANSI_GREEN}PYTHON{ANSI_RESET} | {ANSI_GREEN}{indent}{dump(line[1:])}{ANSI_RESET}\n"
 
     return output
 
