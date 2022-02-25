@@ -24,6 +24,8 @@ env.ENV_NAME = 'foobar'
 if $([[ "env.ENV_NAME" =~ ^([a-zA-Z0-9]|-)*$ ]]) == 0:
     print("success")
 
+echo "This is a \"test\""
+
 def search():
     env.SEARCH_PATH = sys.argv[1]
     env.SEARCH_TERM = sys.argv[2]

@@ -38,9 +38,11 @@ def dump(tokens: list[tokenizer.Token], should_escape: bool = True) -> str:
             no_right_pad = True
             continue
         if tok.t_type == "STRING":
+            # Add quotes around strings
             if should_escape:
-                # Add quotes around strings
-                string = tok.t_value.replace('"', '\\"')
+                # Escape quote marks in strings
+                string = tok.t_value.replace('\\"', '\\\\"')
+                string = string.replace('"', '\\"')
             else:
                 string = tok.t_value
             text = f'"{string}"'

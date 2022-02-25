@@ -108,6 +108,7 @@ x = 5 + 4
 env.ENV_NAME = "foobar"
 if shell ("[[ \"${ENV_NAME}\" =~ ^([a-zA-Z0-9]|-)*$ ]]", get_rc = True) == 0:
     print ("success")
+shell ("echo \"This is a \\\"test\\\"\"")
 def search ():
     env.SEARCH_PATH = sys.argv [1]
     env.SEARCH_TERM = sys.argv [2]
