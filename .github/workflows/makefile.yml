@@ -21,6 +21,8 @@ jobs:
           poetry-version: ${{ matrix.poetry-version }}
       - name: Install deps
         run: make install-dev
+      - name: Install Calligraphy
+        run: pip install .
       - name: Lint
         run: make lint
       - name: Test
