@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 import re
-from calligraphy import tokenizer
+from calligraphy_scripting import tokenizer
 
 NO_LEFT_PAD = ["COLON", "RPAREN", "RBRACE", "RBRACKET", "COMMA"]
 NO_RIGHT_PAD = ["LPAREN", "LBRACE", "LBRACKET", "SHELL"]

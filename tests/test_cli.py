@@ -1,5 +1,5 @@
-from calligraphy.cli import __version__
-from calligraphy import cli
+from calligraphy_scripting.cli import __version__
+from calligraphy_scripting import cli
 import os
 import pytest
 import io

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "calligraphy"
+name = "calligraphy-scripting"
 version = "0.1.0"
 description = "A hybrid language for a modern approach to shell scripting"
 authors = ["John Carter <jfcarter2358@gmail.com>"]
@@ -24,6 +24,6 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-calligraphy = "calligraphy.cli:cli"
+calligraphy = "calligraphy_scripting.cli:cli"
 
 

@@ -2,7 +2,7 @@
 """Module to clean up token lists to make parsing more straight-forward"""
 
 from __future__ import annotations
-from calligraphy import tokenizer
+from calligraphy_scripting import tokenizer
 
 
 def clean_tokens(tokens: list[tokenizer.Token]) -> list[tokenizer.Token]:

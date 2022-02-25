@@ -5,10 +5,10 @@ from __future__ import annotations
 import sys
 import os
 from rich.console import Console
-from calligraphy import parser
-from calligraphy import transpiler
-from calligraphy import cleaner
-from calligraphy import __version__
+from calligraphy_scripting import parser
+from calligraphy_scripting import transpiler
+from calligraphy_scripting import cleaner
+from calligraphy_scripting import __version__
 
 # Setup global helper variables
 console = Console()

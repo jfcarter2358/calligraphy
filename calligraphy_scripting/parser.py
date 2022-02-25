@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 import re
-from calligraphy import tokenizer
+from calligraphy_scripting import tokenizer
 
 
 def space_special(contents: str) -> str:

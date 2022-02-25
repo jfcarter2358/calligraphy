@@ -21,7 +21,7 @@ Pull requests are amazing and most welcome.
 Calligraphy can be simply installed by running
 
 ```
-pip install calligraphy
+pip install calligraphy-scripting
 ```
 
 If you want to install from a source distribution, extract the tarball and run
