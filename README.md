@@ -61,7 +61,7 @@ This will produce an html coverage report under the `htmlcov` directory.
 
 - [x] Add indentation to explain output
     - When using the explain flag the resulting annotated code isn't indented. This can make it hard to read considering that indentation matters in Python and Calligraphy, so we should include that in our output.
-- [ ] Reference environment variables from Bash lines with `env.NAME` pattern instead of `${NAME}`
+- [x] Reference environment variables from Bash lines with `env.NAME` pattern instead of `${NAME}`
     - Right now we get/set env variables from the Python side of things in one way and access them in a different way from Bash. This isn't ideal as it can cause confusion with two ways of doing things, so we should standardize.
 - [ ] Enable sourcing of other calligraphy scripts
     - In order to make Calligraphy more useful, we need to end the limitation of only one source file. A `source` directive should be introduced which allows other Calligraphy scripts to be imported.

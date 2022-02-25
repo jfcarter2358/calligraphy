@@ -2,6 +2,7 @@
 """Module to convert bash code inside of Calligraphy scripts to Python"""
 
 from __future__ import annotations
+import re
 from calligraphy import tokenizer
 
 NO_LEFT_PAD = ["COLON", "RPAREN", "RBRACE", "RBRACKET", "COMMA"]
@@ -179,7 +180,8 @@ def explain(
         indent = " " * int(line[0].t_value)
         if types[idx] == "BASH":
             # Format Bash line
-            output += f"[blue]BASH[/blue]   | [blue]{indent}{dump(line[1:])}[/blue]\n"
+            cmd = dump(line[1:])
+            output += f"[blue]BASH[/blue]   | [blue]{indent}{cmd}[/blue]\n"
         else:
             is_shell = False
             shell_idx = -1
@@ -250,10 +252,12 @@ def convert(
     for idx, line in enumerate(lines):
         if types[idx] == "BASH":
             # Wrap bash line in sh function call
+            cmd = dump(line[1:])
+            cmd = re.sub(r'env\.((?:[a-zA-Z0-9]|_)*)', '${\g<1>}', cmd)
             lines[idx] = [line[0]] + [
                 tokenizer.Token("NAME", "shell"),
                 tokenizer.Token("LPAREN", "("),
-                tokenizer.Token("STRING", dump(line)[1:]),
+                tokenizer.Token("STRING", cmd),
                 tokenizer.Token("RPAREN", ")"),
             ]
         else:
@@ -305,6 +309,7 @@ def convert(
                 else:
                     line[shell_idx] = tokenizer.Token("NAME", "shell")
                     cmd = dump(line[l_paren_idx + 1 : r_paren_idx])
+                    cmd = re.sub(r'env\.((?:[a-zA-Z0-9]|_)*)', '${\g<1>}', cmd)
                     if is_if:
                         # Wrap shell call in function with get_rc argument True
                         lines[idx] = (

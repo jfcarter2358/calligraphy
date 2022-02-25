@@ -113,8 +113,8 @@ x = 5 + 4
 def search ():
     env.SEARCH_PATH = sys.argv [1]
     env.SEARCH_TERM = sys.argv [2]
-    shell ("    echo \"Searching in ${SEARCH_PATH}\"")
-    shell ("    echo \"Searching for ${SEARCH_TERM}\"")
+    shell ("echo \"Searching in ${SEARCH_PATH}\"")
+    shell ("echo \"Searching for ${SEARCH_TERM}\"")
     print (RC)
     rch.print ("foobar")
     if shell ("cat \"${SEARCH_PATH}\" | grep -q \"${SEARCH_TERM}\"", get_rc = 

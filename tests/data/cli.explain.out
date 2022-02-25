@@ -7,11 +7,11 @@ PYTHON | x = 5 + 4
 PYTHON | def search ():
 PYTHON |     env.SEARCH_PATH = sys.argv [1]
 PYTHON |     env.SEARCH_TERM = sys.argv [2]
-BASH   |     echo "Searching in ${SEARCH_PATH}"
-BASH   |     echo "Searching for ${SEARCH_TERM}"
+BASH   |     echo "Searching in env.SEARCH_PATH"
+BASH   |     echo "Searching for env.SEARCH_TERM"
 MIX    |     print ( $? )
 PYTHON |     rch.print ("foobar")
-MIX    |     if $(cat "${SEARCH_PATH}" | grep -q "${SEARCH_TERM}") == 0:
+MIX    |     if $(cat "env.SEARCH_PATH" | grep -q "env.SEARCH_TERM") == 0:
 PYTHON |         print ("search string found")
 PYTHON |     else:
 PYTHON |         print ("Could not find search string")
