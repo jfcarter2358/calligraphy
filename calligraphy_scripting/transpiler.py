@@ -13,7 +13,7 @@ ANSI_CYAN = "\033[36m"
 ANSI_RESET = "\033[0m"
 
 
-def dump(tokens: list[tokenizer.Token], should_escape: bool=True) -> str: 
+def dump(tokens: list[tokenizer.Token], should_escape: bool = True) -> str:
     """Get text represented by a list of tokens
 
     Args:
@@ -188,7 +188,7 @@ def explain(
         indent = " " * int(line[0].t_value)
         if types[idx] == "BASH":
             # Format Bash line
-            cmd = dump(line[1:])
+            cmd = dump(line[1:], should_escape=False)
             output += f"{ANSI_BLUE}BASH{ANSI_RESET}   | {ANSI_BLUE}{indent}{cmd}{ANSI_RESET}\n"
         else:
             is_shell = False
@@ -227,7 +227,7 @@ def explain(
                     output += f"{ANSI_CYAN}MIX{ANSI_RESET}    | {ANSI_GREEN}{indent}{dump(line[1:shell_idx])}{ANSI_RESET} {ANSI_BLUE}$?{ANSI_RESET} {ANSI_GREEN}{dump(line[rc_idx + 1:])}{ANSI_RESET}\n"
                 else:
                     # Format mixed line when making shell call
-                    output += f"{ANSI_CYAN}MIX{ANSI_RESET}    | {ANSI_GREEN}{indent}{dump(line[1:shell_idx])}{ANSI_RESET} {ANSI_BLUE}{dump(line[shell_idx:r_paren_idx+1])}{ANSI_RESET} {ANSI_GREEN}{dump(line[r_paren_idx + 1:])}{ANSI_RESET}\n"
+                    output += f"{ANSI_CYAN}MIX{ANSI_RESET}    | {ANSI_GREEN}{indent}{dump(line[1:shell_idx])}{ANSI_RESET} {ANSI_BLUE}$({dump(line[shell_idx+2:r_paren_idx], should_escape=False)[1:-1]}){ANSI_RESET} {ANSI_GREEN}{dump(line[r_paren_idx + 1:])}{ANSI_RESET}\n"
             else:
                 # Format Python line
                 output += f"{ANSI_GREEN}PYTHON{ANSI_RESET} | {ANSI_GREEN}{indent}{dump(line[1:])}{ANSI_RESET}\n"
@@ -258,7 +258,7 @@ def convert(
     for idx, line in enumerate(lines):
         if types[idx] == "BASH":
             # Wrap bash line in sh function call
-            cmd = dump(line[1:], should_escape=False)# [1:-1]
+            cmd = dump(line[1:], should_escape=False)  # [1:-1]
             cmd = re.sub(r"env\.((?:[a-zA-Z0-9]|_)*)", r"${\g<1>}", cmd)
             lines[idx] = [line[0]] + [
                 tokenizer.Token("NAME", "shell"),
@@ -314,9 +314,10 @@ def convert(
                     )
                 else:
                     line[shell_idx] = tokenizer.Token("NAME", "shell")
-                    cmd = dump(line[l_paren_idx + 1 : r_paren_idx], should_escape=False)[1:-1]
+                    cmd = dump(
+                        line[l_paren_idx + 1 : r_paren_idx], should_escape=False
+                    )[1:-1]
                     cmd = re.sub(r"env\.((?:[a-zA-Z0-9]|_)*)", r"${\g<1>}", cmd)
-                    print(cmd)
                     if is_if:
                         # Wrap shell call in function with get_rc argument True
                         lines[idx] = (
