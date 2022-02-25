@@ -2,6 +2,7 @@
 ---
 [![Code style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/jfcarter2358/calligraphy/actions/workflows/makefile.yml/badge.svg?event=pull_request)](https://github.com/jfcarter2358/calligraphy/actions/workflows/makefile.yml)
 
 **Shell scripting for the modern age**
 
