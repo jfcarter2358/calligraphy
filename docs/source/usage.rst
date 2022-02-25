@@ -1,9 +1,9 @@
 Usage
 =====
 
-.. _installation:
+.. _install:
 
-Install
+Installation
 ------------
 
 To use Calligraphy, first install it using pip:
