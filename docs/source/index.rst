@@ -7,7 +7,7 @@ with the ease of a Bash script while also giving you the advantages of a modern
 programming language like Python.
 
 Check out the :doc:`usage` section for further information, including
-how to :ref:`installation` the project.
+how to :ref:`installa` the project.
 
 .. note::
 

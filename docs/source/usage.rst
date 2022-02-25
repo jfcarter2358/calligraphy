@@ -3,7 +3,7 @@ Usage
 
 .. _installation:
 
-Installation
+Install
 ------------
 
 To use Caligraphy, first install it using pip:
@@ -40,7 +40,7 @@ Explaining Scripts
 
 Caligraphy has the ability to output an annotated version of the source it was provided 
 in order to show which part of the script it understands to be Python and which part
-is Bash. You can view this output by adding the ``-e`` or `--explain`` flag to your 
+is Bash. You can view this output by adding the ``-e`` or ``--explain`` flag to your 
 command. For example,
 
 .. code-block:: console
@@ -62,12 +62,12 @@ Intermediate Output
 
 Caligraphy works by transpiling any detected Bash sections of the script into wrapped
 Python calls. If you want to view the code that _actually_ is being run after the
-transpiling, you can add the ``-i`` or `--intermediate`` flag to your caligraphy 
+transpiling, you can add the ``-i`` or ``--intermediate`` flag to your caligraphy 
 command. For example,
 
 .. code-block:: console
 
-    cat << EOF | caligraphy -e -
+    cat << EOF | caligraphy -i -
     env.MESSAGE = 'Hello world!'
     echo "\${MESSAGE}"
     EOF
