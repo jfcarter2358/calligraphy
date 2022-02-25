@@ -19,13 +19,15 @@ def space_special(contents: str) -> str:
     # Initialize variables to default values
     in_single_quotes = False
     in_double_quotes = False
+    in_shell_call = False
+    paren_depth = 0
     indices = []
 
     # Loop through the text
     for idx, ltr in enumerate(contents):
         # Did we find a double qupte
         if ltr == '"':
-            if not in_single_quotes:
+            if not in_single_quotes and not in_shell_call:
                 # If it's not escaped/in another string then record it
                 if idx > 0:
                     if contents[idx - 1] != "\\":
@@ -33,16 +35,34 @@ def space_special(contents: str) -> str:
                         indices.append(idx)
         # Did we find a single quote
         elif ltr == "'":
-            if not in_double_quotes:
+            if not in_double_quotes and not in_shell_call:
                 # If it's not escaped/in another string then record it
                 if idx > 0:
                     if contents[idx - 1] != "\\":
                         in_single_quotes = not in_single_quotes
                         indices.append(idx)
+        # Did we find an open paren
+        elif ltr == "(":
+            if in_shell_call:
+                paren_depth += 1
+            elif idx > 0:
+                if contents[idx - 1] == "$":
+                    paren_depth = 1
+                    in_shell_call = True
+                indices.append(idx)
+        # Did we find a close paren
+        elif ltr == ')':
+            if in_shell_call:
+                paren_depth -= 1
+                if paren_depth == 0:
+                    in_shell_call = False
+                    indices.append(idx)
+            else:
+                indices.append(idx)
         # Did we find a character taht needs formatting
         elif ltr in tokenizer.TOKEN_FORMATTERS:
             # Check if it's in a string
-            if not in_double_quotes and not in_single_quotes:
+            if not in_double_quotes and not in_single_quotes and not in_shell_call:
                 # Check if it's actually a multi-letter token
                 if (
                     not contents[idx - 1 : idx + 1]
@@ -133,6 +153,11 @@ def parse_lines(lines: list[str]) -> list[tokenizer.Token]:
     in_string = False
     string_buffer = ""
     quote_char = ""
+    shell_buffer = ""
+    shell_flag = False
+    in_shell = False
+    paren_depth = 0
+    
 
     # Loop through the lines
     for line in lines:
@@ -159,6 +184,20 @@ def parse_lines(lines: list[str]) -> list[tokenizer.Token]:
                     continue
                 string_buffer += word + " "
                 continue
+            if in_shell:
+                if tok.t_type == "LPAREN":
+                    paren_depth += 1
+                if tok.t_type == "RPAREN":
+                    paren_depth -= 1
+                    if paren_depth == 0:
+                        tok2 = tokenizer.Token("STRING", shell_buffer[:-1])
+                        in_shell = False
+                        shell_buffer = ""
+                        tokens.append(tok2)
+                        tokens.append(tok)
+                        continue
+                shell_buffer += word + " "
+                continue
             # Ignore comments
             if tok.t_type == "COMMENT":
                 break
@@ -167,6 +206,16 @@ def parse_lines(lines: list[str]) -> list[tokenizer.Token]:
                 quote_char = tok.t_value
                 in_string = True
                 continue
+            if tok.t_type == "LPAREN":
+                if shell_flag:
+                    in_shell = True
+                    shell_buffer = ""
+                    paren_depth += 1
+            shell_flag = False
+            if tok.t_type == "SHELL":
+                shell_flag = True
+            # if the value starts with an open paren then we might be in a shell command
             tokens.append(tok)
+    print(tokens)
 
     return tokens

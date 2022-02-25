@@ -9,11 +9,12 @@ NO_LEFT_PAD = ["COLON", "RPAREN", "RBRACE", "RBRACKET", "COMMA"]
 NO_RIGHT_PAD = ["LPAREN", "LBRACE", "LBRACKET", "SHELL"]
 
 
-def dump(tokens: list[tokenizer.Token]) -> str:
+def dump(tokens: list[tokenizer.Token], should_escape: bool=True) -> str: 
     """Get text represented by a list of tokens
 
     Args:
         tokens (list[tokenizer.Token]): Token objects that make up the text
+        should_escape (bool, optional): Should quote marks be escaped. Defaults to True.
 
     Returns:
         str: Text that was represented by the tokens
@@ -33,8 +34,11 @@ def dump(tokens: list[tokenizer.Token]) -> str:
             no_right_pad = True
             continue
         if tok.t_type == "STRING":
-            # Add quotes around strings
-            string = tok.t_value.replace('"', '\\"')
+            if should_escape:
+                # Add quotes around strings
+                string = tok.t_value.replace('"', '\\"')
+            else:
+                string = tok.t_value
             text = f'"{string}"'
         else:
             text += f"{tok.t_value}"
@@ -252,7 +256,7 @@ def convert(
     for idx, line in enumerate(lines):
         if types[idx] == "BASH":
             # Wrap bash line in sh function call
-            cmd = dump(line[1:])
+            cmd = dump(line[1:], should_escape=False)# [1:-1]
             cmd = re.sub(r"env\.((?:[a-zA-Z0-9]|_)*)", r"${\g<1>}", cmd)
             lines[idx] = [line[0]] + [
                 tokenizer.Token("NAME", "shell"),
@@ -308,8 +312,9 @@ def convert(
                     )
                 else:
                     line[shell_idx] = tokenizer.Token("NAME", "shell")
-                    cmd = dump(line[l_paren_idx + 1 : r_paren_idx])
+                    cmd = dump(line[l_paren_idx + 1 : r_paren_idx], should_escape=False)[1:-1]
                     cmd = re.sub(r"env\.((?:[a-zA-Z0-9]|_)*)", r"${\g<1>}", cmd)
+                    print(cmd)
                     if is_if:
                         # Wrap shell call in function with get_rc argument True
                         lines[idx] = (
