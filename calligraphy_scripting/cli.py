@@ -11,11 +11,22 @@ from calligraphy_scripting import __version__
 
 # Setup global helper variables
 here = os.path.dirname(os.path.abspath(__file__))
-ANSI_BOLD = "\033[1m"
-ANSI_RED = "\033[31m"
-ANSI_GREEN = "\033[32m"
-ANSI_BLUE = "\033[34m"
-ANSI_RESET = "\033[0m"
+if "-n" in sys.argv or "--no-ansi" in sys.argv:  # pragma: no cover
+    ANSI_BOLD = ""
+    ANSI_RED = ""
+    ANSI_GREEN = ""
+    ANSI_BLUE = ""
+    ANSI_RESET = ""
+    transpiler.ANSI_GREEN = ""
+    transpiler.ANSI_CYAN = ""
+    transpiler.ANSI_BLUE = ""
+    transpiler.ANSI_RESET = ""
+else:
+    ANSI_BOLD = "\033[1m"
+    ANSI_RED = "\033[31m"
+    ANSI_GREEN = "\033[32m"
+    ANSI_BLUE = "\033[34m"
+    ANSI_RESET = "\033[0m"
 
 
 def version() -> None:
@@ -125,12 +136,13 @@ def cli() -> None:
     """Handle command line parsing"""
 
     # Help text to be displayed if need be
-    help_text = f"""{ANSI_GREEN}usage{ANSI_RESET}: calpgraphy [option] [file | -] [arg]
+    help_text = f"""{ANSI_GREEN}usage{ANSI_RESET}: calligraphy [option] [file | -] [arg]
     {ANSI_BOLD}{ANSI_BLUE}options:{ANSI_RESET}
         -h, --help            Show this help message and exit
         -e, --explain         Parse input and show the language breakdown of the source
         -v, --version         Print out the version of Calligraphy and exit
         -i, --intermediate    Print out the compiled Python code and exit
+        -n, --no-ansi         Print without ANSI terminal colors
     {ANSI_BOLD}{ANSI_BLUE}arguments:{ANSI_RESET}
         file                  Program read from script file
         -                     Program read from stdin
@@ -150,6 +162,8 @@ def cli() -> None:
 
     # Parse arguments
     for arg in args:
+        if arg in ("-n", "--no-ansi"):
+            continue  # pragma: no cover
         if arg in ("-h", "--help"):
             print(help_text)
             sys.exit(0)
