@@ -10,9 +10,7 @@ import os
 import sys
 from typing import Union
 
-sys.argv = ['calligraphy', 
-'<FILE_PATH>', 
-'Plagueis']
+sys.argv = ['calligraphy', '<FILE_PATH>', 'Plagueis']
 
 
 class Environment:
@@ -41,7 +39,7 @@ class Environment:
             value (str): Value to set the environment variable to
         """
 
-        os.environ = value
+        os.environ[name] = value
 
 
 RC = 0
@@ -51,20 +49,17 @@ env = Environment()
 def shell(
     cmd: str, get_rc: bool = False, get_stdout: bool = False
 ) -> Union[None, str, int]:
-    """Perform a shell call and update the environment with any env variable 
-changes
+    """Perform a shell call and update the environment with any env variable changes
 
     Args:
         cmd (str): The command to run
         get_rc (bool, optional): Should the return code of the call be returned.
             Defaults to False.
-        get_stdout (bool, optional): Should the contents of stdout of the call 
-be
+        get_stdout (bool, optional): Should the contents of stdout of the call be
             returned. Defaults to False.
 
     Returns:
-        Union[None, str, int]: Default None, stdout contents if get_stdout is 
-True and
+        Union[None, str, int]: Default None, stdout contents if get_stdout is True and
             return code if get_rc is True
     """
 
@@ -95,7 +90,7 @@ True and
     for line in envout:
         line = line.strip().split("=")
         if len(line) > 1:
-            os.environ] = line[1]
+            os.environ[line[0]] = line[1]
     if get_stdout:
         return "\n".join(stdout)
     if get_rc:
@@ -105,7 +100,7 @@ True and
 
 
 import sys
-import rich as rch
+import os as osmod
 dct = {"a": "b"}
 lst = ["a", "b"]
 tup = ("a", "b")
@@ -116,9 +111,8 @@ def search ():
     shell ("echo \"Searching in ${SEARCH_PATH}\"")
     shell ("echo \"Searching for ${SEARCH_TERM}\"")
     print (RC)
-    rch.print ("foobar")
-    if shell ("cat \"${SEARCH_PATH}\" | grep -q \"${SEARCH_TERM}\"", get_rc = 
-True) == 0:
+    osmod.getcwd ()
+    if shell ("cat \"${SEARCH_PATH}\" | grep -q \"${SEARCH_TERM}\"", get_rc = True) == 0:
         print ("search string found")
     else:
         print ("Could not find search string")

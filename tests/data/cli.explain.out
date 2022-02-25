@@ -1,5 +1,5 @@
 PYTHON | import sys
-PYTHON | import rich as rch
+PYTHON | import os as osmod
 PYTHON | dct = {"a": "b"}
 PYTHON | lst = ["a", "b"]
 PYTHON | tup = ("a", "b")
@@ -10,7 +10,7 @@ PYTHON |     env.SEARCH_TERM = sys.argv [2]
 BASH   |     echo "Searching in env.SEARCH_PATH"
 BASH   |     echo "Searching for env.SEARCH_TERM"
 MIX    |     print ( $? )
-PYTHON |     rch.print ("foobar")
+PYTHON |     osmod.getcwd ()
 MIX    |     if $(cat "env.SEARCH_PATH" | grep -q "env.SEARCH_TERM") == 0:
 PYTHON |         print ("search string found")
 PYTHON |     else:

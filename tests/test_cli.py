@@ -4,6 +4,7 @@ import os
 import pytest
 import io
 import sys
+import re
 
 class MockIO():
     def __init__(self, stdin=''):
@@ -34,11 +35,15 @@ class MockIO():
 
 here = os.path.dirname(os.path.abspath(__file__))
 
+def escape_ansi(line):
+    ansi_escape = re.compile(r'(?:\x1B[@-_]|[\x80-\x9F])[0-?]*[ -/]*[@-~]')
+    return ansi_escape.sub('', line)
+
 def test_version(capfd):
     cli.version()
     out, _ = capfd.readouterr()
 
-    assert out == f"Calligraphy: {__version__}\n"
+    assert escape_ansi(out) == f"Calligraphy: {__version__}\n"
 
 def test_explain(capfd):
     file_path = os.path.join(here, 'data', 'data.txt')
@@ -53,14 +58,14 @@ def test_explain(capfd):
     cli.explain(os.path.join(here, 'data', 'test.script'))
     out, _ = capfd.readouterr()
 
-    assert out == explain_out
+    assert escape_ansi(out) == explain_out
 
     # Test with stdin
     with MockIO(stdin=script) as mock:
         cli.explain('-')
         out = mock.stdout
 
-    assert out == explain_out
+    assert escape_ansi(out) == explain_out
 
 def test_intermediate(capfd):
     file_path = os.path.join(here, 'data', 'data.txt')
@@ -76,14 +81,14 @@ def test_intermediate(capfd):
     cli.intermediate(os.path.join(here, 'data', 'test.script'), [file_path, 'Plagueis'])
     out, _ = capfd.readouterr()
 
-    assert out == intermediate_out
+    assert escape_ansi(out) == intermediate_out
 
     # Test with stdin
     with MockIO(stdin=script) as mock:
         cli.intermediate('-', [file_path, 'Plagueis'])
         out = mock.stdout
 
-    assert out == intermediate_out
+    assert escape_ansi(out) == intermediate_out
     
 
 def test_execute(capfd):
@@ -100,14 +105,14 @@ def test_execute(capfd):
     cli.execute(os.path.join(here, 'data', 'test.script'), [file_path, 'Plagueis'])
     out, _ = capfd.readouterr()
 
-    assert out == execute_out
+    assert escape_ansi(out) == execute_out
 
     # Test with stdin
     with MockIO(stdin=script) as mock:
         cli.execute('-', [file_path, 'Plagueis'])
         out = mock.stdout
 
-    assert out == execute_out
+    assert escape_ansi(out) == execute_out
 
 def test_calligraphy_cli(capfd):
     file_path = os.path.join(here, 'data', 'data.txt')
@@ -146,7 +151,7 @@ def test_calligraphy_cli(capfd):
     assert pytest_wrapped_e.value.code == 1
     out, _ = capfd.readouterr()
 
-    assert out == help_out
+    assert escape_ansi(out) == help_out
 
     # Test help flag
     sys.argv = ['foobar', '-h']
@@ -156,7 +161,7 @@ def test_calligraphy_cli(capfd):
     assert pytest_wrapped_e.value.code == 0
     out, _ = capfd.readouterr()
 
-    assert out == help_out
+    assert escape_ansi(out) == help_out
 
     # Test long help flag
     sys.argv = ['foobar', '--help']
@@ -166,7 +171,7 @@ def test_calligraphy_cli(capfd):
     assert pytest_wrapped_e.value.code == 0
     out, _ = capfd.readouterr()
 
-    assert out == help_out
+    assert escape_ansi(out) == help_out
 
     # Test version flag
     sys.argv = ['foobar', '-v']
@@ -176,7 +181,7 @@ def test_calligraphy_cli(capfd):
     assert pytest_wrapped_e.value.code == 0
     out, _ = capfd.readouterr()
 
-    assert out == version_out
+    assert escape_ansi(out) == version_out
 
     # Test long version flag
     sys.argv = ['foobar', '--version']
@@ -186,7 +191,7 @@ def test_calligraphy_cli(capfd):
     assert pytest_wrapped_e.value.code == 0
     out, _ = capfd.readouterr()
 
-    assert out == version_out
+    assert escape_ansi(out) == version_out
 
     # Test intermediate flag
     sys.argv = ['foobar', '-i', os.path.join(here, 'data', 'test.script'), file_path, 'Plagueis']
@@ -196,7 +201,7 @@ def test_calligraphy_cli(capfd):
     assert pytest_wrapped_e.value.code == 0
     out, _ = capfd.readouterr()
 
-    assert out == intermediate_out
+    assert escape_ansi(out) == intermediate_out
 
     # Test long intermediate flag
     sys.argv = ['foobar', '--intermediate', os.path.join(here, 'data', 'test.script'), file_path, 'Plagueis']
@@ -206,7 +211,7 @@ def test_calligraphy_cli(capfd):
     assert pytest_wrapped_e.value.code == 0
     out, _ = capfd.readouterr()
 
-    assert out == intermediate_out
+    assert escape_ansi(out) == intermediate_out
 
     # Test intermediate flag conflict
     sys.argv = ['foobar', '--intermediate', '-e', os.path.join(here, 'data', 'test.script'), file_path, 'Plagueis']
@@ -216,7 +221,7 @@ def test_calligraphy_cli(capfd):
     assert pytest_wrapped_e.value.code == 1
     out, _ = capfd.readouterr()
 
-    assert out == conflict_out
+    assert escape_ansi(out) == conflict_out
 
     # Test explain flag
     sys.argv = ['foobar', '-e', os.path.join(here, 'data', 'test.script')]
@@ -226,7 +231,7 @@ def test_calligraphy_cli(capfd):
     assert pytest_wrapped_e.value.code == 0
     out, _ = capfd.readouterr()
 
-    assert out == explain_out
+    assert escape_ansi(out) == explain_out
 
     # Test long explain flag
     sys.argv = ['foobar', '--explain', os.path.join(here, 'data', 'test.script')]
@@ -236,7 +241,7 @@ def test_calligraphy_cli(capfd):
     assert pytest_wrapped_e.value.code == 0
     out, _ = capfd.readouterr()
 
-    assert out == explain_out
+    assert escape_ansi(out) == explain_out
 
     # Test explain flag conflict
     sys.argv = ['foobar', '-e', '-i', os.path.join(here, 'data', 'test.script')]
@@ -246,7 +251,7 @@ def test_calligraphy_cli(capfd):
     assert pytest_wrapped_e.value.code == 1
     out, _ = capfd.readouterr()
 
-    assert out == conflict_out
+    assert escape_ansi(out) == conflict_out
 
     # Test not passing a path
     sys.argv = ['foobar', '-e']
@@ -256,12 +261,12 @@ def test_calligraphy_cli(capfd):
     assert pytest_wrapped_e.value.code == 1
     out, _ = capfd.readouterr()
 
-    assert out == no_program_out
+    assert escape_ansi(out) == no_program_out
 
     # Test running a script
     sys.argv = ['foobar', os.path.join(here, 'data', 'test.script'), file_path, 'Plagueis']
     cli.cli()
     out, _ = capfd.readouterr()
 
-    assert out == execute_out
+    assert escape_ansi(out) == execute_out
 

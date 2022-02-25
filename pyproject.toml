@@ -10,7 +10,6 @@ keywords = ["scripting", "calligraphy"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-rich = "^11.2.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

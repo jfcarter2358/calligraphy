@@ -4,22 +4,27 @@
 from __future__ import annotations
 import sys
 import os
-from rich.console import Console
 from calligraphy_scripting import parser
 from calligraphy_scripting import transpiler
 from calligraphy_scripting import cleaner
 from calligraphy_scripting import __version__
 
 # Setup global helper variables
-console = Console()
 here = os.path.dirname(os.path.abspath(__file__))
+ANSI_BOLD = "\033[1m"
+ANSI_RED = "\033[31m"
+ANSI_GREEN = "\033[32m"
+ANSI_BLUE = "\033[34m"
+ANSI_RESET = "\033[0m"
 
 
 def version() -> None:
     """Print out the currently installed version of Calligraphy"""
 
     # Output the detected version
-    console.print(f"[bold green]Calligraphy[/bold green]: {__version__}")
+    print(
+        f"{ANSI_GREEN}{ANSI_BOLD}Calligraphy{ANSI_RESET}: {ANSI_BLUE}{__version__}{ANSI_RESET}"
+    )
 
 
 def explain(path: str) -> None:
@@ -44,7 +49,7 @@ def explain(path: str) -> None:
     tokens = parser.parse_lines(lines)
     cleaned = cleaner.clean_tokens(tokens)
     explanation = transpiler.explain(cleaned, imports, functions)
-    console.print(explanation)
+    print(explanation)
 
 
 def intermediate(path: str, args: list) -> None:
@@ -78,7 +83,7 @@ def intermediate(path: str, args: list) -> None:
     header = header.replace('"PROGRAM_ARGS"', str(["calligraphy"] + args))
     code = f"{header}\n\n{code}"
 
-    console.print(code)
+    print(code)
 
 
 def execute(path: str, args: list) -> None:
@@ -120,13 +125,13 @@ def cli() -> None:
     """Handle command line parsing"""
 
     # Help text to be displayed if need be
-    help_text = """[green]usage[/green]: calpgraphy \[option] \[file | -] \[arg]
-    [bold blue]options:[/bold blue]
+    help_text = f"""{ANSI_GREEN}usage{ANSI_RESET}: calpgraphy [option] [file | -] [arg]
+    {ANSI_BOLD}{ANSI_BLUE}options:{ANSI_RESET}
         -h, --help            Show this help message and exit
         -e, --explain         Parse input and show the language breakdown of the source
         -v, --version         Print out the version of Calligraphy and exit
         -i, --intermediate    Print out the compiled Python code and exit
-    [bold blue]arguments:[/bold blue]
+    {ANSI_BOLD}{ANSI_BLUE}arguments:{ANSI_RESET}
         file                  Program read from script file
         -                     Program read from stdin
         arg ...               Arguments passed to the program"""
@@ -134,7 +139,7 @@ def cli() -> None:
 
     # Check if any arguments have been passed
     if len(args) == 0:
-        console.print(help_text)
+        print(help_text)
         sys.exit(1)
 
     # Setup variable defaults
@@ -146,7 +151,7 @@ def cli() -> None:
     # Parse arguments
     for arg in args:
         if arg in ("-h", "--help"):
-            console.print(help_text)
+            print(help_text)
             sys.exit(0)
         if arg in ("-v", "--version"):
             version()
@@ -154,16 +159,16 @@ def cli() -> None:
         if arg in ("-i", "--intermediate"):
             flag_intermediate = True
             if flag_explain:
-                console.print(
-                    "[bold red][ERROR][/bold red] :: Both the `intermediate` and `explain` options cannot be set at the same time."
+                print(
+                    f"{ANSI_RED}{ANSI_BOLD}[ERROR]{ANSI_RESET} :: Both the `intermediate` and `explain` options cannot be set at the same time."
                 )
                 sys.exit(1)
             continue  # pragma: no cover
         if arg in ("-e", "--explain"):
             flag_explain = True
             if flag_intermediate:
-                console.print(
-                    "[bold red][ERROR][/bold red] :: Both the `intermediate` and `explain` options cannot be set at the same time."
+                print(
+                    f"{ANSI_RED}{ANSI_BOLD}[ERROR]{ANSI_RESET} :: Both the `intermediate` and `explain` options cannot be set at the same time."
                 )
                 sys.exit(1)
             continue  # pragma: no cover
@@ -174,8 +179,8 @@ def cli() -> None:
 
     # Make sure a program path was supplied
     if not program_path:
-        console.print(
-            "[bold red][ERROR][/bold red] :: Program input is required, either supply a file path or use `-` for stdin"
+        print(
+            f"{ANSI_RED}{ANSI_BOLD}[ERROR]{ANSI_RESET} :: Program input is required, either supply a file path or use `-` for stdin"
         )
         sys.exit(1)
 
