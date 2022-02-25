@@ -1,4 +1,4 @@
-# pylint: disable=C0301, R1702, R0912, R0914
+# pylint: disable=C0301, R1702, R0912, R0914, R0915
 """Module to parse Calligraphy scripts into token representation"""
 
 from __future__ import annotations
@@ -19,6 +19,8 @@ def space_special(contents: str) -> str:
     # Initialize variables to default values
     in_single_quotes = False
     in_double_quotes = False
+    in_shell_call = False
+    paren_depth = 0
     indices = []
 
     # Loop through the text
@@ -30,7 +32,8 @@ def space_special(contents: str) -> str:
                 if idx > 0:
                     if contents[idx - 1] != "\\":
                         in_double_quotes = not in_double_quotes
-                        indices.append(idx)
+                        if not in_shell_call:
+                            indices.append(idx)
         # Did we find a single quote
         elif ltr == "'":
             if not in_double_quotes:
@@ -38,11 +41,34 @@ def space_special(contents: str) -> str:
                 if idx > 0:
                     if contents[idx - 1] != "\\":
                         in_single_quotes = not in_single_quotes
+                        if not in_shell_call:
+                            indices.append(idx)
+        # Did we find an open paren
+        elif ltr == "(":
+            if in_shell_call:
+                if not in_single_quotes and not in_double_quotes:
+                    paren_depth += 1
+            elif idx > 0:
+                if contents[idx - 1] == "$":
+                    paren_depth = 1
+                    in_shell_call = True
+                indices.append(idx)
+        # Did we find a close paren
+        elif ltr == ")":
+            if in_shell_call:
+                if not in_single_quotes and not in_double_quotes:
+                    paren_depth -= 1
+                    if paren_depth == 0:
+                        in_shell_call = False
+                        in_single_quotes = False
+                        in_double_quotes = False
                         indices.append(idx)
+            else:
+                indices.append(idx)
         # Did we find a character taht needs formatting
         elif ltr in tokenizer.TOKEN_FORMATTERS:
             # Check if it's in a string
-            if not in_double_quotes and not in_single_quotes:
+            if not in_double_quotes and not in_single_quotes and not in_shell_call:
                 # Check if it's actually a multi-letter token
                 if (
                     not contents[idx - 1 : idx + 1]
@@ -133,6 +159,10 @@ def parse_lines(lines: list[str]) -> list[tokenizer.Token]:
     in_string = False
     string_buffer = ""
     quote_char = ""
+    shell_buffer = ""
+    shell_flag = False
+    in_shell = False
+    paren_depth = 0
 
     # Loop through the lines
     for line in lines:
@@ -152,12 +182,40 @@ def parse_lines(lines: list[str]) -> list[tokenizer.Token]:
                 # If we're in a string then just add the value to the string's value
                 # instead of creating a new line
                 if tok.t_type == "QUOTE" and tok.t_value == quote_char:
-                    tok2 = tokenizer.Token("STRING", string_buffer[:-1])
                     in_string = False
+                    tokens.append(tokenizer.Token("STRING", string_buffer[:-1]))
                     string_buffer = ""
-                    tokens.append(tok2)
                     continue
                 string_buffer += word + " "
+                continue
+            if in_shell:
+                if tok.t_type == "LPAREN":
+                    paren_depth += 1
+                if tok.t_type == "RPAREN":
+                    paren_depth -= 1
+                    if paren_depth == 0:
+                        in_shell = False
+                        tokens.append(tokenizer.Token("STRING", shell_buffer[:-1]))
+                        tokens.append(tok)
+                        shell_buffer = ""
+                        continue
+                for idx, char in enumerate(word):
+                    if char == "(":
+                        paren_depth += 1
+                    if char == ")":
+                        paren_depth -= 1
+                        if paren_depth == 0:
+                            shell_buffer += word[:idx]
+                            in_shell = False
+                            tokens.append(tokenizer.Token("STRING", shell_buffer))
+                            tokens.append(tokenizer.Token("RPAREN", ")"))
+                            if len(word) - idx > 1:
+                                tokens.append(
+                                    tokenizer.Token("STRING", word[idx + 1 :])
+                                )
+                            shell_buffer = ""
+                            continue
+                shell_buffer += word + " "
                 continue
             # Ignore comments
             if tok.t_type == "COMMENT":
@@ -167,6 +225,15 @@ def parse_lines(lines: list[str]) -> list[tokenizer.Token]:
                 quote_char = tok.t_value
                 in_string = True
                 continue
+            if tok.t_type == "LPAREN":
+                if shell_flag:
+                    in_shell = True
+                    shell_buffer = ""
+                    paren_depth += 1
+            shell_flag = False
+            if tok.t_type == "SHELL":
+                shell_flag = True
+            # if the value starts with an open paren then we might be in a shell command
             tokens.append(tok)
 
     return tokens

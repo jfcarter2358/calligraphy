@@ -4,6 +4,9 @@ PYTHON | dct = {"a": "b"}
 PYTHON | lst = ["a", "b"]
 PYTHON | tup = ("a", "b")
 PYTHON | x = 5 + 4
+PYTHON | env.ENV_NAME = "foobar"
+MIX    | if $([[ "env.ENV_NAME" =~ ^([a-zA-Z0-9]|-)*$ ]]) == 0:
+PYTHON |     print ("success")
 PYTHON | def search ():
 PYTHON |     env.SEARCH_PATH = sys.argv [1]
 PYTHON |     env.SEARCH_TERM = sys.argv [2]
