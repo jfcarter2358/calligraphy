@@ -1,14 +1,14 @@
 # pylint: disable=C0301, R1702, R0912, R0914, W0122, W1401
-"""Main entrypoint into Caligraphy that handles CLI parsing"""
+"""Main entrypoint into Calligraphy that handles CLI parsing"""
 
 from __future__ import annotations
 import sys
 import os
 from rich.console import Console
-from caligraphy import parser
-from caligraphy import transpiler
-from caligraphy import cleaner
-from caligraphy import __version__
+from calligraphy import parser
+from calligraphy import transpiler
+from calligraphy import cleaner
+from calligraphy import __version__
 
 # Setup global helper variables
 console = Console()
@@ -16,17 +16,17 @@ here = os.path.dirname(os.path.abspath(__file__))
 
 
 def version() -> None:
-    """Print out the currently installed version of Caligraphy"""
+    """Print out the currently installed version of Calligraphy"""
 
     # Output the detected version
-    console.print(f"[bold green]Caligraphy[/bold green]: {__version__}")
+    console.print(f"[bold green]Calligraphy[/bold green]: {__version__}")
 
 
 def explain(path: str) -> None:
     """Print out the source code with language annotations
 
     Args:
-        path (str): Path to the Caligraphy script file
+        path (str): Path to the Calligraphy script file
     """
 
     if path == "-":
@@ -51,7 +51,7 @@ def intermediate(path: str, args: list) -> None:
     """Print out the intermediate Python code that will be run
 
     Args:
-        path (str): Path to the Caligraphy script file
+        path (str): Path to the Calligraphy script file
         args (list): Command line arguments to pass to the program
     """
 
@@ -75,17 +75,17 @@ def intermediate(path: str, args: list) -> None:
     # Add the header to enable functionality
     with open(os.path.join(here, "data", "header.py"), encoding="utf-8") as header_file:
         header = header_file.read()
-    header = header.replace('"PROGRAM_ARGS"', str(["caligraphy"] + args))
+    header = header.replace('"PROGRAM_ARGS"', str(["calligraphy"] + args))
     code = f"{header}\n\n{code}"
 
     console.print(code)
 
 
 def execute(path: str, args: list) -> None:
-    """Run a Caligraphy script
+    """Run a Calligraphy script
 
     Args:
-        path (str): Path to the Caligraphy script file
+        path (str): Path to the Calligraphy script file
         args (list): Command line arguments to pass to the program
     """
 
@@ -109,7 +109,7 @@ def execute(path: str, args: list) -> None:
     # Add the header to enable functionality
     with open(os.path.join(here, "data", "header.py"), encoding="utf-8") as header_file:
         header = header_file.read()
-    header = header.replace('"PROGRAM_ARGS"', str(["caligraphy"] + args))
+    header = header.replace('"PROGRAM_ARGS"', str(["calligraphy"] + args))
     code = f"{header}\n\n{code}"
 
     # Run the code
@@ -124,7 +124,7 @@ def cli() -> None:
     [bold blue]options:[/bold blue]
         -h, --help            Show this help message and exit
         -e, --explain         Parse input and show the language breakdown of the source
-        -v, --version         Print out the version of Caligraphy and exit
+        -v, --version         Print out the version of Calligraphy and exit
         -i, --intermediate    Print out the compiled Python code and exit
     [bold blue]arguments:[/bold blue]
         file                  Program read from script file

@@ -1,9 +1,9 @@
 # pylint: disable=C0301, R1702, R0912, R0914
-"""Module to parse Caligraphy scripts into token representation"""
+"""Module to parse Calligraphy scripts into token representation"""
 
 from __future__ import annotations
 import re
-from caligraphy import tokenizer
+from calligraphy import tokenizer
 
 
 def space_special(contents: str) -> str:

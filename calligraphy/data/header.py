@@ -1,7 +1,7 @@
 # pylint: disable=W0603
 
 """
-A header module that contains the code required to make transpiled caligraphy
+A header module that contains the code required to make transpiled calligraphy
 scripts run
 """
 

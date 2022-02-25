@@ -1,13 +1,13 @@
 [tool.poetry]
-name = "caligraphy"
+name = "calligraphy"
 version = "0.1.0"
 description = "A hybrid language for a modern approach to shell scripting"
 authors = ["John Carter <jfcarter2358@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/jfcarter2358/caligraphy"
-homepage = "caligraphy.readthedocs.io"
-keywords = ["scripting", "caligraphy"]
+repository = "https://github.com/jfcarter2358/calligraphy"
+homepage = "calligraphy.readthedocs.io"
+keywords = ["scripting", "calligraphy"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -25,6 +25,6 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-caligraphy = "caligraphy.cli:cli"
+calligraphy = "calligraphy.cli:cli"
 
 

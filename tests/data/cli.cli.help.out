@@ -3,7 +3,7 @@ usage: calpgraphy [option] [file | -] [arg]
         -h, --help            Show this help message and exit
         -e, --explain         Parse input and show the language breakdown of the
 source
-        -v, --version         Print out the version of Caligraphy and exit
+        -v, --version         Print out the version of Calligraphy and exit
         -i, --intermediate    Print out the compiled Python code and exit
     arguments:
         file                  Program read from script file

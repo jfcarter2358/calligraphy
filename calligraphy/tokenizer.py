@@ -1,5 +1,5 @@
 # pylint: disable=C0301, R1702, R0912, R0914
-"""Objects and data related to Caligraphy tokenization"""
+"""Objects and data related to Calligraphy tokenization"""
 
 from __future__ import annotations
 import re

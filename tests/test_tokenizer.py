@@ -1,4 +1,4 @@
-from caligraphy import tokenizer
+from calligraphy import tokenizer
 
 def test_detect_type():
     token = tokenizer.detect_type('=')

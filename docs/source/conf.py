@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Caligraphy'
+project = 'Calligraphy'
 copyright = '2022, John Carter'
 author = 'John Carter'
 

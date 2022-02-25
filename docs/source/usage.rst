@@ -6,16 +6,16 @@ Usage
 Install
 ------------
 
-To use Caligraphy, first install it using pip:
+To use Calligraphy, first install it using pip:
 
 .. code-block:: console
 
-   (.venv) $ pip install caligraphy
+   (.venv) $ pip install calligraphy
 
 Writing Scripts
 ---------------
 
-See the :doc:`writing` section to get started writing scripts in Caligraphy.
+See the :doc:`writing` section to get started writing scripts in Calligraphy.
 
 Running Scripts
 ---------------
@@ -24,13 +24,13 @@ To run a script file, you can use the following command:
 
 .. code-block:: console
     
-    (.venv) $ caligraphy /path/to/file/to/run arg1 arg2 ...
+    (.venv) $ calligraphy /path/to/file/to/run arg1 arg2 ...
 
-In addition, you can pass the script source into caligraphy via stdin by using ``-`` as your path parameter as follows:
+In addition, you can pass the script source into calligraphy via stdin by using ``-`` as your path parameter as follows:
 
 .. code-block:: console
 
-    (.venv) $ cat << EOF | caligraphy -
+    (.venv) $ cat << EOF | calligraphy -
     env.MESSAGE = 'Hello world!'
     echo "\${MESSAGE}"
     EOF
@@ -38,14 +38,14 @@ In addition, you can pass the script source into caligraphy via stdin by using `
 Explaining Scripts
 ------------------
 
-Caligraphy has the ability to output an annotated version of the source it was provided 
+Calligraphy has the ability to output an annotated version of the source it was provided 
 in order to show which part of the script it understands to be Python and which part
 is Bash. You can view this output by adding the ``-e`` or ``--explain`` flag to your 
 command. For example,
 
 .. code-block:: console
 
-    cat << EOF | caligraphy -e -
+    cat << EOF | calligraphy -e -
     env.MESSAGE = 'Hello world!'
     echo "\${MESSAGE}"
     EOF
@@ -60,14 +60,14 @@ Will output
 Intermediate Output
 -------------------
 
-Caligraphy works by transpiling any detected Bash sections of the script into wrapped
+Calligraphy works by transpiling any detected Bash sections of the script into wrapped
 Python calls. If you want to view the code that _actually_ is being run after the
-transpiling, you can add the ``-i`` or ``--intermediate`` flag to your caligraphy 
+transpiling, you can add the ``-i`` or ``--intermediate`` flag to your calligraphy 
 command. For example,
 
 .. code-block:: console
 
-    cat << EOF | caligraphy -i -
+    cat << EOF | calligraphy -i -
     env.MESSAGE = 'Hello world!'
     echo "\${MESSAGE}"
     EOF
@@ -79,7 +79,7 @@ Will output
     # pylint: disable=W0603
 
     """
-    A header module that contains the code required to make transpiled caligraphy
+    A header module that contains the code required to make transpiled calligraphy
     scripts run
     """
 
@@ -88,7 +88,7 @@ Will output
     import sys
     from typing import Union
 
-    sys.argv = ['caligraphy']
+    sys.argv = ['calligraphy']
 
 
     class Environment:
@@ -183,5 +183,5 @@ Will output
 Reference
 ---------
 
-See the :doc:`reference` section for an in-depth reference to the parts of the Caligraphy
+See the :doc:`reference` section for an in-depth reference to the parts of the Calligraphy
 language

@@ -1,5 +1,5 @@
-from caligraphy.cli import __version__
-from caligraphy import cli
+from calligraphy.cli import __version__
+from calligraphy import cli
 import os
 import pytest
 import io
@@ -38,7 +38,7 @@ def test_version(capfd):
     cli.version()
     out, _ = capfd.readouterr()
 
-    assert out == f"Caligraphy: {__version__}\n"
+    assert out == f"Calligraphy: {__version__}\n"
 
 def test_explain(capfd):
     file_path = os.path.join(here, 'data', 'data.txt')
@@ -109,7 +109,7 @@ def test_execute(capfd):
 
     assert out == execute_out
 
-def test_caligraphy_cli(capfd):
+def test_calligraphy_cli(capfd):
     file_path = os.path.join(here, 'data', 'data.txt')
 
     with open(os.path.join(here, 'data', 'cli.version.out')) as out_file:

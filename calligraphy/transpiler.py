@@ -1,8 +1,8 @@
 # pylint: disable=C0301, R1702, R0912, R0914
-"""Module to convert bash code inside of Caligraphy scripts to Python"""
+"""Module to convert bash code inside of Calligraphy scripts to Python"""
 
 from __future__ import annotations
-from caligraphy import tokenizer
+from calligraphy import tokenizer
 
 NO_LEFT_PAD = ["COLON", "RPAREN", "RBRACE", "RBRACKET", "COMMA"]
 NO_RIGHT_PAD = ["LPAREN", "LBRACE", "LBRACKET", "SHELL"]
@@ -86,7 +86,7 @@ def get_line_types(
             is_python = False
             is_function = False
             for tok in line:
-                # If we are assigning a variable then it's Python since Caligraphy
+                # If we are assigning a variable then it's Python since Calligraphy
                 # disallows assigning variables in a bash-like way
                 if tok.t_type == "ASSIGN":
                     is_python = True
@@ -230,7 +230,7 @@ def explain(
 def convert(
     tokens: list[tokenizer.Token], imports: list[str], functions: list[str]
 ) -> list[tokenizer.Token]:
-    """Convert Caligraphy tokens into purely Python tokens
+    """Convert Calligraphy tokens into purely Python tokens
 
     Args:
         tokens (list[tokenizer.Token]): List of tokens that make up the script file

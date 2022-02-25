@@ -2,11 +2,11 @@
 """Module to clean up token lists to make parsing more straight-forward"""
 
 from __future__ import annotations
-from caligraphy import tokenizer
+from calligraphy import tokenizer
 
 
 def clean_tokens(tokens: list[tokenizer.Token]) -> list[tokenizer.Token]:
-    """Detect and collapse line-continuations in Caligraphy source
+    """Detect and collapse line-continuations in Calligraphy source
 
     Args:
         tokens (list[tokenizer.Token]): Token objects to be cleaned
