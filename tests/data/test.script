@@ -1,5 +1,5 @@
 import sys
-import rich as rch
+import os as osmod
 
 # This is a comment
 
@@ -29,7 +29,7 @@ def search():
     echo "Searching in env.SEARCH_PATH"
     echo "Searching for env.SEARCH_TERM"
     print($?)
-    rch.print("foobar")
+    osmod.getcwd()
 
     if $(cat "env.SEARCH_PATH" | grep -q "env.SEARCH_TERM") == 0:
         print('search string found')
