@@ -20,7 +20,7 @@ jobs:
         with:
           poetry-version: ${{ matrix.poetry-version }}
       - name: Install deps
-        run: make install-dev
+        run: pip install black pytest pytest-cov 
       - name: Install Calligraphy
         run: pip install .
       - name: Lint
