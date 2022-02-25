@@ -6,7 +6,6 @@ authors = ["John Carter <jfcarter2358@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/jfcarter2358/calligraphy"
-homepage = "calligraphy.readthedocs.io"
 keywords = ["scripting", "calligraphy"]
 
 [tool.poetry.dependencies]
