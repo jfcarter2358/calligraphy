@@ -1,7 +1,0 @@
-# type: ignore
-
-import json
-
-repo_json = $(curl -u "env.ARTIFACTORY_USER:env.ARTIFACTORY_PASSWORD" https://artifacts.leapyear.io/artifactory/api/repositories)
-
-repos = json.loads(repo_json)
