@@ -1,354 +1,105 @@
-# pylint: disable=C0301, R1702, R0912, R0914
+# pylint: disable=C0301, R1702, R0912, R0914, W1401
 """Module to convert bash code inside of Calligraphy scripts to Python"""
 
 from __future__ import annotations
 import re
-from calligraphy_scripting import tokenizer
+import base64
 
-NO_LEFT_PAD = ["COLON", "RPAREN", "RBRACE", "RBRACKET", "COMMA"]
-NO_RIGHT_PAD = ["LPAREN", "LBRACE", "LBRACKET", "SHELL"]
 ANSI_GREEN = "\033[32m"
 ANSI_BLUE = "\033[34m"
 ANSI_CYAN = "\033[36m"
+ANSI_GREY = "\033[90m"
 ANSI_RESET = "\033[0m"
+CMD_SUFFIX = " && echo '\n' && echo ~~~~START_ENVIRONMENT_HERE~~~~ && printenv && echo ~~~~START_CWD_HERE~~~~ && pwd"
 
 
-def dump(tokens: list[tokenizer.Token], should_escape: bool = True) -> str:
-    """Get text represented by a list of tokens
-
-    Args:
-        tokens (list[tokenizer.Token]): Token objects that make up the text
-        should_escape (bool, optional): Should quote marks be escaped. Defaults to True.
-
-    Returns:
-        str: Text that was represented by the tokens
-    """
-
-    # Set defaults for variables
-    output = ""
-    no_right_pad = True
-
-    # Go through all the tokens
-    for tok in tokens:
-
-        text = ""
-        if tok.t_type == "INDENT":
-            # Indents equate to a new line
-            output += "\n" + (" " * tok.t_value)
-            no_right_pad = True
-            continue
-        if tok.t_type == "STRING":
-            # Add quotes around strings
-            if should_escape:
-                # Escape quote marks in strings
-                string = tok.t_value.replace('\\"', '\\\\"')
-                string = string.replace('"', '\\"')
-            else:
-                string = tok.t_value
-            text = f'"{string}"'
-        else:
-            text += f"{tok.t_value}"
-
-        # Check if we should add a space to the left
-        if not (tok.t_type in NO_LEFT_PAD or no_right_pad):
-            text = f" {text}"
-
-        output += text
-        no_right_pad = False
-
-        # Check if we should have no space to the right
-        if tok.t_type in NO_RIGHT_PAD:
-            no_right_pad = True
-
-    return output
-
-
-def get_line_types(
-    lines: list[list[tokenizer.Token]], imports: list[str], functions: list[str]
-) -> list[str]:
-    """Get the language type for each line of the passed in source
-
-    Args:
-        lines (list[list[tokenizer.Token]]): List of token lists representing the script
-        imports (list[str]): List of string names of imported modules
-        functions (list[str]): List of string names of defined functions
-
-    Returns:
-        list[str]: Either "PYTHON" or "BASH" describing that line's language
-    """
-
-    # Setup types list
-    types = []
-
-    # Loop through the lines
-    for line in lines:
-        # If we start with a Python keyword then it's a Python line
-        if line[1].t_type == "KEYWORD":
-            types.append("PYTHON")
-        else:
-            # If we start with a defined function name, then it's Python
-            # since we're calling that function
-            for func in functions:
-                str_line = dump(line[1:])
-                if str_line.startswith(func):
-                    types.append("PYTHON")
-                    continue
-            # Check for more complicated conditions
-            is_python = False
-            is_function = False
-            for tok in line:
-                # If we are assigning a variable then it's Python since Calligraphy
-                # disallows assigning variables in a bash-like way
-                if tok.t_type == "ASSIGN":
-                    is_python = True
-                    break
-                # If we find a built-in Python function name then we need to record
-                # that there might be a function here
-                if tok.t_type == "FUNCTION":
-                    is_function = True
-                    continue
-                # If we find a name token then we need to check a bit deeper
-                if tok.t_type == "NAME":
-                    # Check to see if the name corresponds to accessing something from
-                    # one of the imported modules
-                    for imp in imports:
-                        if tok.t_value.startswith(f"{imp}."):
-                            is_function = True
-                            break
-                    if is_function:
-                        continue
-                # If we just found a function and now find a parenthesis then we're in a
-                # Python line
-                if tok.t_type == "LPAREN":
-                    if is_function:
-                        is_python = True
-                        break
-                is_function = False
-            # Assign the type according to what we discovered
-            if is_python:
-                types.append("PYTHON")
-            else:
-                types.append("BASH")
-    return types
-
-
-def preprocess_tokens(
-    tokens: list[tokenizer.Token], imports: list[str], functions: list[str]
-) -> tuple[list[list[tokenizer.Token]], list]:
-    """Process token list into an array with language annotations
-
-    Args:
-        tokens (list[tokenizer.Token]): List of tokens that make up the script file
-        imports (list[str]): List of string names of imported modules
-        functions (list[str]): List of string names of defined functions_
-
-    Returns:
-        tuple[list[list[tokenizer.Token]], list[str]]: tokens organized into lines, their corresponding languages
-    """
-    # Setup defaults for variables
-    lines = []
-    current = []
-
-    # Split the tokens into their lines based on where the indents are located
-    for tok in tokens:
-        if tok.t_type == "INDENT":
-            lines.append(current)
-            current = []
-        current.append(tok)
-    lines.append(current)
-
-    # Remove empty lines
-    lines = lines[1:]
-    lines = [l for l in lines if len(l) > 1]
-
-    # Get the type annotations for lines
-    types = get_line_types(lines, imports, functions)
-
-    return lines, types
-
-
-def explain(
-    tokens: list[tokenizer.Token], imports: list[str], functions: list[str]
-) -> str:
+def explain(lines: list[str], langs: list[str], inline_indices: list[str]) -> str:
     """Get the language annotations for a script
 
     Args:
-        tokens (list[tokenizer.Token]): List of tokens that make up the script file
-        imports (list[str]): List of string names of imported modules
-        functions (list[str]): List of string names of defined functions
+        lines (list[str]): Lines that make up the script
+        langs (list[str]): Detected languages for the lines
+        inline_indices (list[str]): Indices of inline bash elements of the script
 
     Returns:
         str: Text of annotated script
     """
-    output = ""
 
-    # Process list of tokens
-    lines, types = preprocess_tokens(tokens, imports, functions)
+    output = ""
 
     # Generate language annotations
     for idx, line in enumerate(lines):
-        indent = " " * int(line[0].t_value)
-        if types[idx] == "BASH":
-            # Format Bash line
-            cmd = dump(line[1:], should_escape=False)
-            output += f"{ANSI_BLUE}BASH{ANSI_RESET}   | {ANSI_BLUE}{indent}{cmd}{ANSI_RESET}\n"
+        if langs[idx] == "COMMENT":
+            output += (
+                f"{ANSI_GREY}COMMENT{ANSI_RESET} | {ANSI_GREY}{line}{ANSI_RESET}\n"
+            )
+        elif langs[idx] == "BASH":
+            output += (
+                f"{ANSI_BLUE}BASH{ANSI_RESET}    | {ANSI_BLUE}{line}{ANSI_RESET}\n"
+            )
+        elif langs[idx] == "PYTHON":
+            output += (
+                f"{ANSI_GREEN}PYTHON{ANSI_RESET}  | {ANSI_GREEN}{line}{ANSI_RESET}\n"
+            )
         else:
-            is_shell = False
-            shell_idx = -1
-            rc_idx = -1
-            r_paren_idx = -1
-            paren_depth = 0
-            for jdx, tok in enumerate(line):
-                # Record shell calls we find
-                if tok.t_type == "SHELL":
-                    shell_idx = jdx
-                    is_shell = True
-                    continue
-                if is_shell:
-                    # If we find a '?' after a shell call then we're referencing the
-                    # last RC of a bash command and need to record that
-                    if tok.t_type == "QUESTION":
-                        if shell_idx == jdx - 1:
-                            rc_idx = jdx
-                            continue
-                    # If we find a '(' after a shell call then we want to know that
-                    # wer're inside parenthesis
-                    if tok.t_type == "LPAREN":
-                        paren_depth += 1
-                        continue
-                    # If we find a ')' after a shell call then we want to know that
-                    # wer're exiting parenthesis and record the position
-                    if tok.t_type == "RPAREN":
-                        paren_depth -= 1
-                        if paren_depth == 0:
-                            r_paren_idx = jdx
-                        continue
-            if is_shell:
-                if rc_idx != -1:
-                    # Format mixed line when checking bash RC
-                    output += f"{ANSI_CYAN}MIX{ANSI_RESET}    | {ANSI_GREEN}{indent}{dump(line[1:shell_idx])}{ANSI_RESET} {ANSI_BLUE}$?{ANSI_RESET} {ANSI_GREEN}{dump(line[rc_idx + 1:])}{ANSI_RESET}\n"
-                else:
-                    # Format mixed line when making shell call
-                    output += f"{ANSI_CYAN}MIX{ANSI_RESET}    | {ANSI_GREEN}{indent}{dump(line[1:shell_idx])}{ANSI_RESET} {ANSI_BLUE}$({dump(line[shell_idx+2:r_paren_idx], should_escape=False)[1:-1]}){ANSI_RESET} {ANSI_GREEN}{dump(line[r_paren_idx + 1:])}{ANSI_RESET}\n"
-            else:
-                # Format Python line
-                output += f"{ANSI_GREEN}PYTHON{ANSI_RESET} | {ANSI_GREEN}{indent}{dump(line[1:])}{ANSI_RESET}\n"
+            inline_idx = [i for i in inline_indices if i[0] == idx][0]
+            output += f"{ANSI_CYAN}MIX{ANSI_RESET}     | {ANSI_GREEN}{line[:inline_idx[1]]}{ANSI_RESET}{ANSI_BLUE}{line[inline_idx[1]:inline_idx[2]+1]}{ANSI_RESET}{ANSI_GREEN}{line[inline_idx[2] + 1:]}{ANSI_RESET}\n"
 
+    output = output.replace("<CALLIGRAPHY_NEWLINE>", "\n")
     return output
 
 
-def convert(
-    tokens: list[tokenizer.Token], imports: list[str], functions: list[str]
-) -> list[tokenizer.Token]:
-    """Convert Calligraphy tokens into purely Python tokens
+def transpile(lines: list[str], langs: list[str], inline_indices: list[str]) -> str:
+    """Convert Calligraphy script into a purely Python script
 
     Args:
-        tokens (list[tokenizer.Token]): List of tokens that make up the script file
-        imports (list[str]): List of string names of imported modules
-        functions (list[str]): List of string names of defined functions
+        lines (list[str]): Lines that make up the script
+        langs (list[str]): Detected languages for the lines
+        inline_indices (list[str]): Indices of inline bash elements of the script
 
     Returns:
-        list[tokenizer.Token]: List of tokens that make up the intermediate Python code
+        str: Transpiled Python script
     """
 
-    # Setup defaults for variables
-    output = []
+    bash_rc_pattern = r"\$\?(?=([^'\\]*(\\.|'([^'\\]*\\.)*[^'\\]*'))*[^']*$)"
+    rc_pattern = r'\$\?(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$)'
+    arg_pattern = r'\$([0-9]+)(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$)'
+    env_pattern = r"env\.((?:[a-zA-Z0-9]|_)*)"
 
-    # Process list of tokens
-    lines, types = preprocess_tokens(tokens, imports, functions)
+    output = ""
 
+    # Generate language annotations
     for idx, line in enumerate(lines):
-        if types[idx] == "BASH":
-            # Wrap bash line in sh function call
-            cmd = dump(line[1:], should_escape=False)  # [1:-1]
-            cmd = re.sub(r"env\.((?:[a-zA-Z0-9]|_)*)", r"${\g<1>}", cmd)
-            lines[idx] = [line[0]] + [
-                tokenizer.Token("NAME", "shell"),
-                tokenizer.Token("LPAREN", "("),
-                tokenizer.Token("STRING", cmd),
-                tokenizer.Token("RPAREN", ")"),
-            ]
+        if langs[idx] == "COMMENT":
+            output += f"{line}\n"
+        elif langs[idx] == "BASH":
+            indent = " " * (len(line) - len(line.lstrip()))
+            cmd = line.lstrip()
+            cmd = re.sub(env_pattern, r"${\g<1>}", cmd)
+            cmd = re.sub(bash_rc_pattern, "$CALLIGRAPHY_RC", cmd)
+            cmd += CMD_SUFFIX
+            cmd_bytes = cmd.encode("utf-8")
+            base64_cmd_bytes = base64.b64encode(cmd_bytes)
+            base64_cmd = base64_cmd_bytes.decode("utf8")
+            output += f'{indent}shell("{base64_cmd}")\n'
+        elif langs[idx] == "PYTHON":
+            line = re.sub(rc_pattern, "RC", line)
+            line = re.sub(arg_pattern, r"sys.argv[\g<1>]", line)
+            output += f"{line}\n"
         else:
-            is_shell = False
-            is_if = False
-            shell_idx = -1
-            rc_idx = -1
-            l_paren_idx = -1
-            r_paren_idx = -1
-            paren_depth = 0
-            for jdx, tok in enumerate(line):
-                # Record if the shell call is inside an if statement or not
-                if tok.t_value == "if" and not is_shell:
-                    is_if = True
-                    continue
-                # Record shell calls we find
-                if tok.t_type == "SHELL":
-                    shell_idx = jdx
-                    is_shell = True
-                    continue
-                if is_shell:
-                    # If we find a '?' after a shell call then we're referencing the
-                    # last RC of a bash command and need to record that
-                    if tok.t_type == "QUESTION":
-                        if shell_idx == jdx - 1:
-                            rc_idx = jdx
-                            continue
-                    # If we find a '(' after a shell call then we want to know that
-                    # wer're inside parenthesis and record the position
-                    if tok.t_type == "LPAREN":
-                        if paren_depth == 0:
-                            l_paren_idx = jdx
-                        paren_depth += 1
-                        continue
-                    # If we find a ')' after a shell call then we want to know that
-                    # wer're exiting parenthesis and record the position
-                    if tok.t_type == "RPAREN":
-                        paren_depth -= 1
-                        if paren_depth == 0:
-                            r_paren_idx = jdx
-                        continue
-            if is_shell:
-                if rc_idx != -1:
-                    lines[idx] = (
-                        line[:shell_idx]
-                        + [tokenizer.Token("NAME", "RC")]
-                        + line[rc_idx + 1 :]
-                    )
-                else:
-                    line[shell_idx] = tokenizer.Token("NAME", "shell")
-                    cmd = dump(
-                        line[l_paren_idx + 1 : r_paren_idx], should_escape=False
-                    )[1:-1]
-                    cmd = re.sub(r"env\.((?:[a-zA-Z0-9]|_)*)", r"${\g<1>}", cmd)
-                    if is_if:
-                        # Wrap shell call in function with get_rc argument True
-                        lines[idx] = (
-                            line[: l_paren_idx + 1]
-                            + [
-                                tokenizer.Token("STRING", cmd),
-                                tokenizer.Token("COMMA", ","),
-                                tokenizer.Token("NAME", "get_rc"),
-                                tokenizer.Token("ASSIGN", "="),
-                                tokenizer.Token("BOOL", "True"),
-                            ]
-                            + line[r_paren_idx:]
-                        )
-                    else:
-                        # Wrap shell call in function with get_stdout argument True
-                        lines[idx] = (
-                            line[: l_paren_idx + 1]
-                            + [
-                                tokenizer.Token("STRING", cmd),
-                                tokenizer.Token("COMMA", ","),
-                                tokenizer.Token("NAME", "get_stdout"),
-                                tokenizer.Token("ASSIGN", "="),
-                                tokenizer.Token("BOOL", "True"),
-                            ]
-                            + line[r_paren_idx:]
-                        )
+            inline_idx = [i for i in inline_indices if i[0] == idx][0]
+            raw = line[inline_idx[1] : inline_idx[2]]
+            cmd = raw[2:-1]
+            cmd = re.sub(env_pattern, r"${\g<1>}", cmd)
+            cmd = re.sub(bash_rc_pattern, "$CALLIGRAPHY_RC", cmd)
+            cmd += CMD_SUFFIX
+            cmd_bytes = cmd.encode("utf-8")
+            base64_cmd_bytes = base64.b64encode(cmd_bytes)
+            base64_cmd = base64_cmd_bytes.decode("utf8")
+            if "if" in line[: inline_idx[1]].split(" "):
+                output += f'{line[:inline_idx[1]]}shell("{base64_cmd}", get_rc=True, silent={raw[0]=="?"}){line[inline_idx[2]:]}\n'
+            else:
+                output += f'{line[:inline_idx[1]]}shell("{base64_cmd}", get_stdout=True, silent={raw[0]=="?"}){line[inline_idx[2]:]}\n'
 
-    # Collapse array into a 1D list
-    for line in lines:
-        output += line
-
+    output = output.replace("<CALLIGRAPHY_NEWLINE>", "\n")
     return output

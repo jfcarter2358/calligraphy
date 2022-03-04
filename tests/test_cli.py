@@ -51,6 +51,9 @@ def test_explain(capfd):
     with open(os.path.join(here, 'data', 'cli.explain.out')) as out_file:
         explain_out = out_file.read()
 
+    with open(os.path.join(here, 'data', 'cli.explain.stdin.out')) as out_file:
+        explain_stdin_out = out_file.read()
+
     with open(os.path.join(here, 'data', 'test.script')) as script_file:
         script = script_file.read()
 
@@ -65,7 +68,7 @@ def test_explain(capfd):
         cli.explain('-')
         out = mock.stdout
 
-    assert escape_ansi(out) == explain_out
+    assert escape_ansi(out) == explain_stdin_out
 
 def test_intermediate(capfd):
     file_path = os.path.join(here, 'data', 'data.txt')
@@ -73,6 +76,10 @@ def test_intermediate(capfd):
     with open(os.path.join(here, 'data', 'cli.intermediate.out')) as out_file:
         intermediate_out = out_file.read()
     intermediate_out = intermediate_out.replace('<FILE_PATH>', file_path)
+
+    with open(os.path.join(here, 'data', 'cli.intermediate.stdin.out')) as out_file:
+        intermediate_stdin_out = out_file.read()
+    intermediate_stdin_out = intermediate_stdin_out.replace('<FILE_PATH>', file_path)
 
     with open(os.path.join(here, 'data', 'test.script')) as script_file:
         script = script_file.read()
@@ -88,7 +95,7 @@ def test_intermediate(capfd):
         cli.intermediate('-', [file_path, 'Plagueis'])
         out = mock.stdout
 
-    assert escape_ansi(out) == intermediate_out
+    assert escape_ansi(out) == intermediate_stdin_out
     
 
 def test_execute(capfd):
@@ -122,6 +129,9 @@ def test_calligraphy_cli(capfd):
 
     with open(os.path.join(here, 'data', 'cli.explain.out')) as out_file:
         explain_out = out_file.read()
+
+    with open(os.path.join(here, 'data', 'cli.explain.stdin.out')) as out_file:
+        explain_stdin_out = out_file.read()
 
     with open(os.path.join(here, 'data', 'cli.intermediate.out')) as out_file:
         intermediate_out = out_file.read()
@@ -210,6 +220,8 @@ def test_calligraphy_cli(capfd):
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 0
     out, _ = capfd.readouterr()
+
+    
 
     assert escape_ansi(out) == intermediate_out
 

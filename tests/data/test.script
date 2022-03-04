@@ -17,8 +17,6 @@ tup = (
     "b"
 )
 
-x = 5 + \
-    4
 
 env.ENV_NAME = 'foobar'
 if $([[ "env.ENV_NAME" =~ ^([a-zA-Z0-9]|-)*$ ]]) == 0:

@@ -6,7 +6,6 @@ import sys
 import os
 from calligraphy_scripting import parser
 from calligraphy_scripting import transpiler
-from calligraphy_scripting import cleaner
 from calligraphy_scripting import __version__
 
 # Setup global helper variables
@@ -54,12 +53,10 @@ def explain(path: str) -> None:
             contents = code_file.read()
 
     # Process the contents
-    imports = parser.get_imports(contents)
-    functions = parser.get_functions(contents)
-    lines = [line for line in contents.split("\n") if len(line) > 0]
-    tokens = parser.parse_lines(lines)
-    cleaned = cleaner.clean_tokens(tokens)
-    explanation = transpiler.explain(cleaned, imports, functions)
+    contents = parser.handle_line_breaks(contents)
+    lines, langs, inline_indices = parser.determine_language(contents)
+    explanation = transpiler.explain(lines, langs, inline_indices)
+
     print(explanation)
 
 
@@ -80,19 +77,15 @@ def intermediate(path: str, args: list) -> None:
             contents = code_file.read()
 
     # Process the contents
-    imports = parser.get_imports(contents)
-    functions = parser.get_functions(contents)
-    lines = [line for line in contents.split("\n") if len(line) > 0]
-    tokens = parser.parse_lines(lines)
-    cleaned = cleaner.clean_tokens(tokens)
-    converted = transpiler.convert(cleaned, imports, functions)
-    code = transpiler.dump(converted)
+    contents = parser.handle_line_breaks(contents)
+    lines, langs, inline_indices = parser.determine_language(contents)
+    transpiled = transpiler.transpile(lines, langs, inline_indices)
 
     # Add the header to enable functionality
     with open(os.path.join(here, "data", "header.py"), encoding="utf-8") as header_file:
         header = header_file.read()
     header = header.replace('"PROGRAM_ARGS"', str(["calligraphy"] + args))
-    code = f"{header}\n\n{code}"
+    code = f"{header}\n\n{transpiled}"
 
     print(code)
 
@@ -114,19 +107,15 @@ def execute(path: str, args: list) -> None:
             contents = code_file.read()
 
     # Process the contents
-    imports = parser.get_imports(contents)
-    functions = parser.get_functions(contents)
-    lines = [line for line in contents.split("\n") if len(line) > 0]
-    tokens = parser.parse_lines(lines)
-    cleaned = cleaner.clean_tokens(tokens)
-    converted = transpiler.convert(cleaned, imports, functions)
-    code = transpiler.dump(converted)
+    contents = parser.handle_line_breaks(contents)
+    lines, langs, inline_indices = parser.determine_language(contents)
+    transpiled = transpiler.transpile(lines, langs, inline_indices)
 
     # Add the header to enable functionality
     with open(os.path.join(here, "data", "header.py"), encoding="utf-8") as header_file:
         header = header_file.read()
     header = header.replace('"PROGRAM_ARGS"', str(["calligraphy"] + args))
-    code = f"{header}\n\n{code}"
+    code = f"{header}\n\n{transpiled}"
 
     # Run the code
     exec(code, globals())
@@ -165,8 +154,12 @@ def cli() -> None:
         if arg in ("-n", "--no-ansi"):
             continue  # pragma: no cover
         if arg in ("-h", "--help"):
-            print(help_text)
-            sys.exit(0)
+            if not program_path:
+                print(help_text)
+                sys.exit(0)
+            else:
+                program_args.append(arg)
+                continue
         if arg in ("-v", "--version"):
             version()
             sys.exit(0)
