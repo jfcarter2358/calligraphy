@@ -16,7 +16,7 @@ lint:  ##        Format and lint calligraphy
 	pylint calligraphy_scripting
 
 test:  ##        Test calligraphy
-	pytest --cov=calligraphy_scripting --cov-report=html --cov-fail-under=95 -W ignore::DeprecationWarning
+	pytest --cov=calligraphy_scripting --cov-report=html --cov-fail-under=95 -W ignore::DeprecationWarning -vv
 
 clean:  ##       Remove test and doc artifacts
 	rm -rf .coverage || true

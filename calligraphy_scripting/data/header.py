@@ -47,7 +47,7 @@ env = Environment()
 
 
 def shell(
-    cmd: str, get_rc: bool = False, get_stdout: bool = False
+    cmd: str, get_rc: bool = False, get_stdout: bool = False, silent: bool = False
 ) -> Union[None, str, int]:
     """Perform a shell call and update the environment with any env variable changes
 
@@ -57,35 +57,52 @@ def shell(
             Defaults to False.
         get_stdout (bool, optional): Should the contents of stdout of the call be
             returned. Defaults to False.
+        silent (bool, optional): Should the output to stdout be suppressed when printing
+            to the terminal. Defaults to False.
 
     Returns:
         Union[None, str, int]: Default None, stdout contents if get_stdout is True and
             return code if get_rc is True
     """
 
-    env_marker = "~~~~START_ENVIRONMENT_HERE~~~~"
     global RC
-    cmd = f"bash -c '{cmd}' && echo \"\n\" && echo {env_marker} && printenv"
+    global env
+    cmd = f"echo '{cmd}' | base64 -d | bash"
     stdout = []
     envout = []
+    cwd_path = os.getcwd()
 
     with subprocess.Popen(
         cmd, shell=True, stdout=subprocess.PIPE, env=os.environ.copy()
     ) as proc:
         # grab and return the exit code
         is_stdout = True
+        is_env = False
         for line in iter(proc.stdout.readline, b""):
             str_line = line.decode("utf-8")[:-1]
-            if str_line == env_marker:
+            if str_line == "~~~~START_ENVIRONMENT_HERE~~~~":
+                if len(stdout) > 1:
+                    if stdout[-2]:
+                        print(stdout[-2])
+                    stdout = stdout[:-1]
                 is_stdout = False
+                is_env = True
+            elif str_line == "~~~~START_CWD_HERE~~~~":
+                is_env = False
             elif is_stdout:
-                print(str_line)
+                if not silent and len(stdout) > 1:
+                    print(stdout[-2])
                 stdout.append(str_line)
-            else:
+            elif is_env:
                 envout.append(str_line)
+            else:
+                cwd_path = str_line
         proc.stdout.close()
         proc.wait()
         RC = proc.poll()
+
+    env.CALLIGRAPHY_RC = str(RC)
+    os.chdir(cwd_path)
 
     for line in envout:
         line = line.strip().split("=")

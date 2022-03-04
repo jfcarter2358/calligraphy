@@ -119,15 +119,23 @@ import sys
 import os as osmod
 # This is a comment
 dct = {
+
     "a": "b"
+
 }
 lst = [
+
     "a",
+
     "b"
+
 ]
 tup = (
+
     "a",
+
     "b"
+
 )
 env.ENV_NAME = 'foobar'
 if shell("W1sgIiR7RU5WX05BTUV9IiA9fiBeKFthLXpBLVowLTldfC0pKiQgXV0gJiYgZWNobyAnCicgJiYgZWNobyB+fn5+U1RBUlRfRU5WSVJPTk1FTlRfSEVSRX5+fn4gJiYgcHJpbnRlbnYgJiYgZWNobyB+fn5+U1RBUlRfQ1dEX0hFUkV+fn5+ICYmIHB3ZA==", get_rc=True, silent=False) == 0:
