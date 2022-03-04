@@ -84,7 +84,7 @@ def intermediate(path: str, args: list) -> None:
     # Add the header to enable functionality
     with open(os.path.join(here, "data", "header.py"), encoding="utf-8") as header_file:
         header = header_file.read()
-    header = header.replace('"PROGRAM_ARGS"', str(["calligraphy"] + args))
+    header = header.replace('"PROGRAM_ARGS"', str(['calligraphy'] + args))
     code = f"{header}\n\n{transpiled}"
 
     print(code)
@@ -114,7 +114,7 @@ def execute(path: str, args: list) -> None:
     # Add the header to enable functionality
     with open(os.path.join(here, "data", "header.py"), encoding="utf-8") as header_file:
         header = header_file.read()
-    header = header.replace('"PROGRAM_ARGS"', str(["calligraphy"] + args))
+    header = header.replace('"PROGRAM_ARGS"', str([sys.argv[1]] + args))
     code = f"{header}\n\n{transpiled}"
 
     # Run the code
