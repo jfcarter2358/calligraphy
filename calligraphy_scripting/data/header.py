@@ -65,7 +65,7 @@ def shell(
 
     env_marker = "~~~~START_ENVIRONMENT_HERE~~~~"
     global RC
-    cmd = f"bash -c '{cmd}' && echo {env_marker} && printenv"
+    cmd = f"bash -c '{cmd}' && echo \"\n\" && echo {env_marker} && printenv"
     stdout = []
     envout = []
 
