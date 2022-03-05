@@ -178,11 +178,10 @@ def determine_language(
     lines = [line for line in code.split("\n") if len(line.strip()) > 0]
     variables = ["env."]
     langs = []
-    inline_indices = []
     imports = get_imports(code)
     functions = get_functions(code)
 
-    for idx, line in enumerate(lines):
+    for line in lines:
         is_python = False
         stripped = line.lstrip()
         if stripped.startswith("#") or stripped.startswith('"""'):
@@ -213,8 +212,6 @@ def determine_language(
                     variables += [var.strip() for var in match.group(1).split(",")]
                     inline_match = re.search(inline_bash_pattern, line)
                     if inline_match:
-                        span = inline_match.span()
-                        inline_indices.append((idx, span[0], span[1]))
                         langs.append("MIX")
                         continue
                     langs.append("PYTHON")
@@ -222,15 +219,13 @@ def determine_language(
         else:
             inline_match = re.search(inline_bash_pattern, line)
             if inline_match:
-                span = inline_match.span()
-                inline_indices.append((idx, span[0], span[1]))
                 langs.append("MIX")
                 continue
             langs.append("PYTHON")
             continue
         langs.append("BASH")
 
-    return lines, langs, inline_indices
+    return lines, langs
 
 
 def handle_line_breaks(code: str) -> str:
@@ -244,15 +239,21 @@ def handle_line_breaks(code: str) -> str:
     """
 
     depths = {"PAREN": 0, "BRACE": 0, "BRACKET": 0}
-
     flags = {"SINGLE_QUOTE": False, "DOUBLE_QUOTE": False}
-
+    inline_indices = []
     output = ""
+    line_idx = 0
+    char_idx = 0
+    in_inline = False
+    inline_paren_depth = 0
 
     for idx, token in enumerate(code):
+        look_ahead = None
         look_behind = None
         if idx > 0:
             look_behind = code[idx - 1]
+        if idx < len(code) - 1:
+            look_ahead = code[idx + 1]
 
         if token == "'" and look_behind != "\\" and not flags["DOUBLE_QUOTE"]:
             flags["SINGLE_QUOTE"] = not flags["SINGLE_QUOTE"]
@@ -273,7 +274,10 @@ def handle_line_breaks(code: str) -> str:
             and not (flags["SINGLE_QUOTE"] or flags["DOUBLE_QUOTE"])
         ):
             depths["PAREN"] -= 1
-
+            if in_inline:
+                if depths["PAREN"] == inline_paren_depth:
+                    inline_indices[-1][2] = char_idx + 1
+                    in_inline = False
         if (
             token == "{"
             and look_behind != "\\"
@@ -311,10 +315,21 @@ def handle_line_breaks(code: str) -> str:
                     or flags["DOUBLE_QUOTE"]
                 ):
                     output += "<CALLIGRAPHY_NEWLINE>"
+                    char_idx += 1
                     continue
+                if char_idx != 0:
+                    line_idx += 1
+                char_idx = -1
             else:
                 output += "<CALLIGRAPHY_NEWLINE>"
+                char_idx += 1
                 continue
+        if token in ("$", "?", "!"):
+            if look_ahead == "(":
+                inline_paren_depth = depths["PAREN"]
+                in_inline = True
+                inline_indices.append([line_idx, char_idx, None])
 
         output += token
-    return output
+        char_idx += 1
+    return output, inline_indices
