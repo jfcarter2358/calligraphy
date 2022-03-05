@@ -53,8 +53,8 @@ def explain(path: str) -> None:
             contents = code_file.read()
 
     # Process the contents
-    contents = parser.handle_line_breaks(contents)
-    lines, langs, inline_indices = parser.determine_language(contents)
+    contents, inline_indices = parser.handle_line_breaks(contents)
+    lines, langs = parser.determine_language(contents)
     explanation = transpiler.explain(lines, langs, inline_indices)
 
     print(explanation)
@@ -77,14 +77,14 @@ def intermediate(path: str, args: list) -> None:
             contents = code_file.read()
 
     # Process the contents
-    contents = parser.handle_line_breaks(contents)
-    lines, langs, inline_indices = parser.determine_language(contents)
+    contents, inline_indices = parser.handle_line_breaks(contents)
+    lines, langs = parser.determine_language(contents)
     transpiled = transpiler.transpile(lines, langs, inline_indices)
 
     # Add the header to enable functionality
     with open(os.path.join(here, "data", "header.py"), encoding="utf-8") as header_file:
         header = header_file.read()
-    header = header.replace('"PROGRAM_ARGS"', str(['calligraphy'] + args))
+    header = header.replace('"PROGRAM_ARGS"', str(["calligraphy"] + args))
     code = f"{header}\n\n{transpiled}"
 
     print(code)
@@ -107,8 +107,8 @@ def execute(path: str, args: list) -> None:
             contents = code_file.read()
 
     # Process the contents
-    contents = parser.handle_line_breaks(contents)
-    lines, langs, inline_indices = parser.determine_language(contents)
+    contents, inline_indices = parser.handle_line_breaks(contents)
+    lines, langs = parser.determine_language(contents)
     transpiled = transpiler.transpile(lines, langs, inline_indices)
 
     # Add the header to enable functionality
