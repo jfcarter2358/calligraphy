@@ -1,5 +1,9 @@
 name: CI
-on: pull_request
+on: 
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   ci:
@@ -31,7 +35,29 @@ jobs:
           pylint calligraphy_scripting
       - name: Run tests
         run: |
-          pytest --cov=calligraphy_scripting --cov-fail-under=95 -W ignore::DeprecationWarning
+          pytest --cov=calligraphy_scripting --cov-report=xml --cov-fail-under=95 -W ignore::DeprecationWarning
+      - name: Get coverage
+        run: |
+          WHOLE=$(cat coverage.xml | grep "name=\".\"" | awk '{print $3}' | cut -c14-15)
+          DECIMAL=$(cat coverage.xml | grep "name=\".\"" | awk '{print $3}' | cut -c16-17)
+          echo "COVERAGE=$(echo \"${WHOLE}.${DECIMAL}%\")" >> $GITHUB_ENV
+
+          REF=${{ github.ref }}
+          echo "github.ref: $REF"
+          IFS='/' read -ra PATHS <<< "$REF"
+          BRANCH_NAME="${PATHS[1]}_${PATHS[2]}"
+          echo $BRANCH_NAME
+          echo "BRANCH=$(echo ${BRANCH_NAME})" >> $GITHUB_ENV
+      - name: Create Coverage Badge
+        uses: schneegans/dynamic-badges-action@v1.0.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: 7d4c25ef2e97e8de523ef7c1fee26e8e
+          filename: your-repo-name__${{ env.BRANCH }}.json
+          label: Test Coverage
+          message: ${{ env.COVERAGE }}
+          color: green
+          namedLogo: pytest
       # - name: Coverage Badge
       #   uses: tj-actions/coverage-badge-py@v1.2
       # - name: Verify Changed files
