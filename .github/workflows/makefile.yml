@@ -40,7 +40,7 @@ jobs:
         run: |
           WHOLE=$(cat coverage.xml | grep "name=\".\"" | awk '{print $3}' | cut -c14-15)
           DECIMAL=$(cat coverage.xml | grep "name=\".\"" | awk '{print $3}' | cut -c16-17)
-          echo "COVERAGE=$(echo \"${WHOLE}.${DECIMAL}%\")" >> $GITHUB_ENV
+          echo "COVERAGE=$(echo ${WHOLE}.${DECIMAL}%)" >> $GITHUB_ENV
 
           REF=${{ github.ref }}
           echo "github.ref: $REF"
@@ -56,5 +56,5 @@ jobs:
           filename: calligraphy__${{ env.BRANCH }}.json
           label: Test Coverage
           message: ${{ env.COVERAGE }}
-          color: green
+          color: brightgreen
           namedLogo: pytest
