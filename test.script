@@ -1,6 +1,0 @@
-# type: ignore
-
-echo "this is a test" | false
-
-if $? != 0:
-    print('The previous command failed!')
