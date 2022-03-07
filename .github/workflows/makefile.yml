@@ -53,7 +53,7 @@ jobs:
         with:
           auth: ${{ secrets.GIST_SECRET }}
           gistID: a5b95abd1dc360c13da66165ff482d5e
-          filename: your-repo-name__${{ env.BRANCH }}.json
+          filename: calligraphy__${{ env.BRANCH }}.json
           label: Test Coverage
           message: ${{ env.COVERAGE }}
           color: green
