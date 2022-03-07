@@ -64,7 +64,8 @@ there are a few rules that must be followed:
    as being Bash code and will execute it as such. For example, if we took the following
    code snippet:
 
-   .. code-block: Python
+   .. code-block::
+
       cat test.txt | grep "foobar" > matches.txt
       with open('matches.txt') as f:
          matches = f.read().split('\n')
@@ -74,14 +75,16 @@ there are a few rules that must be followed:
    Calligraphy interpreter to show how Calligraphy has parsed your script/interpreted the
    languages.
 
-5. ``$(...)`` denotes inline Bash
+5. ``$(...)`` and ``?(...)`` denote inline Bash
 
    A decent chunk of the time it isn't super useful to pipe output to files and read them
    in so that you can access them from the Python side of things. To help with this issue
    you can wrap Bash code that's on a Python line with ``$(...)`` to tell Calligraphy that 
    it's a shell command. Calligraphy will return the contents of stdout when calls are 
    wrapped in such a manner except for when it's contained within an if statement. In that 
-   scenario Calligraphy will return the return code of the shell call performed.
+   scenario Calligraphy will return the return code of the shell call performed. In 
+   addition, wrapping the Bash code with ``?(...)`` will act in the same manner as 
+   ``$(...)`` except it won't print to stdout.
 
 6. ``$?`` will give you the return code of the last shell command to be run
 
@@ -100,3 +103,10 @@ there are a few rules that must be followed:
    determination. Therefore, the Bash pattern of ``NAME="value"`` is not permitted in the 
    Calligraphy language. If you need to set and environment variable to the output of a
    shell command you can use ``env.NAME = $(...)``
+
+9. Other Calligraphy scripts can be imported via ``source path/to/other/module.script`` 
+
+   For example, if you used ``source path/to/foo.script`` you when then be able to use
+   ``foo.bar`` to access the variable ``bar`` within the ``foo`` module. You can also 
+   use ``source path/to/foo.script as baz`` to rename the import, meaning you would
+   instead use ``baz.bar`` instead of ``foo.bar``

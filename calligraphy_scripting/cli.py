@@ -78,6 +78,7 @@ def intermediate(path: str, args: list) -> None:
 
     # Process the contents
     contents, inline_indices = parser.handle_line_breaks(contents)
+    contents = parser.handle_sourcing(contents)
     lines, langs = parser.determine_language(contents)
     transpiled = transpiler.transpile(lines, langs, inline_indices)
 
@@ -108,6 +109,7 @@ def execute(path: str, args: list) -> None:
 
     # Process the contents
     contents, inline_indices = parser.handle_line_breaks(contents)
+    contents = parser.handle_sourcing(contents)
     lines, langs = parser.determine_language(contents)
     transpiled = transpiler.transpile(lines, langs, inline_indices)
 

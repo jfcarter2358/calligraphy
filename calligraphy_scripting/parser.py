@@ -1,8 +1,70 @@
-# pylint: disable=C0301, R1702, R0912, R0914, R0915
+# pylint: disable=C0301, R1702, R0912, R0914, R0915, W1401
 """Module to parse Calligraphy scripts into token representation"""
 
 from __future__ import annotations
 import re
+import os
+from calligraphy_scripting import transpiler
+
+
+def handle_sourcing(contents: str) -> str:
+    """Handle replacing Calligraphy source statements and recursively transpiling other files
+
+    Args:
+        contents (str): Contents of a Calligraphy script
+
+    Returns:
+        str: Contents of the Calligraphy script with the source statements replaced
+    """
+
+    def compile_sourced(matches):
+        here = os.path.dirname(os.path.abspath(__file__))
+        for match in matches:
+            with open(
+                os.path.join(match[0], f"{match[1]}.{match[2]}"), encoding="utf-8"
+            ) as code_file:
+                code_contents = code_file.read()
+            code_contents, inline_indices = handle_line_breaks(code_contents)
+            lines, langs = determine_language(code_contents)
+            transpiled = transpiler.transpile(lines, langs, inline_indices)
+
+            # Add the header to enable functionality
+            with open(
+                os.path.join(here, "data", "header.py"), encoding="utf-8"
+            ) as header_file:
+                header = header_file.read()
+            header = header.replace('sys.argv = "PROGRAM_ARGS"', "")
+            code = f"{header}\n\n{transpiled}"
+            with open(
+                os.path.join(match[0], f".{match[1]}.py"), "w", encoding="utf-8"
+            ) as output_file:
+                output_file.write(code)
+
+    source_pattern = (
+        r"^[ \t]*source[ \t]+([a-zA-Z0-9_/]*)\/([a-zA-Z0-9_]*)\.([a-zA-Z0-9]*)[ \t]*$"
+    )
+    source_pattern_rename = r"^[ \t]*source[ \t]+([a-zA-Z0-9_/]*)\/([a-zA-Z0-9_]*)\.([a-zA-Z0-9]*)[ \t]as[ \t]([a-zA-Z0-9_]*)[ \t]*$"
+
+    sourced = re.findall(source_pattern, contents, re.MULTILINE)
+    sourced_rename = re.findall(source_pattern_rename, contents, re.MULTILINE)
+
+    compile_sourced(sourced)
+    compile_sourced(sourced_rename)
+
+    contents = re.sub(
+        source_pattern,
+        '\g<2> = source_import(os.path.join("\g<1>", "\g<2>"+"."+"\g<3>"), "\g<2>")',
+        contents,
+        flags=re.MULTILINE,
+    )
+    contents = re.sub(
+        source_pattern_rename,
+        '\g<4> = source_import(os.path.join("\g<1>", "\g<2>"+"."+"\g<3>"), "\g<4>")',
+        contents,
+        flags=re.MULTILINE,
+    )
+
+    return contents
 
 
 def get_imports(contents: str) -> list[str]:
@@ -222,6 +284,9 @@ def determine_language(
                 langs.append("MIX")
                 continue
             langs.append("PYTHON")
+            continue
+        if line.strip().startswith("source "):
+            langs.append("CALLIGRAPHY")
             continue
         langs.append("BASH")
 

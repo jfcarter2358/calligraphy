@@ -1,0 +1,10 @@
+COMMENT     | # type: ignore
+COMMENT     | """This is a 
+multiline comment"""
+PYTHON      | x = 4 + \
+    5
+CALLIGRAPHY | source tests/data/test3.script as foo
+PYTHON      | if $1 == "-h":
+PYTHON      |     print(foo.HELP)
+MIX         | bar = ?(echo "bar")
+

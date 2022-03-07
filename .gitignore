@@ -7,3 +7,4 @@ __pycache__
 /docs/build
 /dist
 /coverage.xml
+/tests/data/.test3.py

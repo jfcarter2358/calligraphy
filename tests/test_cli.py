@@ -282,3 +282,26 @@ def test_calligraphy_cli(capfd):
 
     assert escape_ansi(out) == execute_out
 
+def test_help_flag(capfd):
+    with open(os.path.join(here, 'data', 'cli.help_flag.out')) as out_file:
+        help_flag_out = out_file.read()
+    
+    with open(os.path.join(here, 'data', 'cli.explain2.out')) as out_file:
+        explain_out = out_file.read()
+
+    # Test help flag passing
+    sys.argv = ['foobar', os.path.join(here, 'data', 'test2.script'), '-h']
+    cli.cli()
+    out, _ = capfd.readouterr()
+
+    assert escape_ansi(out) == help_flag_out
+
+    # Test explain output with source
+    sys.argv = ['foobar', os.path.join(here, 'data', 'test2.script'), '-e']
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        cli.cli()
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 0
+    out, _ = capfd.readouterr()
+
+    assert escape_ansi(out) == explain_out

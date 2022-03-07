@@ -1,0 +1,14 @@
+# type: ignore
+
+"""This is a 
+multiline comment"""
+
+x = 4 + \
+    5
+
+source tests/data/test3.script as foo
+
+if $1 == "-h":
+    print(foo.HELP)
+
+bar = ?(echo "bar")
