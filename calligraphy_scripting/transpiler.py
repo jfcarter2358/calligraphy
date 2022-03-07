@@ -8,6 +8,7 @@ import base64
 ANSI_GREEN = "\033[32m"
 ANSI_BLUE = "\033[34m"
 ANSI_CYAN = "\033[36m"
+ANSI_MAGENTA = "\033[35m"
 ANSI_GREY = "\033[90m"
 ANSI_RESET = "\033[0m"
 CMD_SUFFIX = " && echo '\n' && echo ~~~~START_ENVIRONMENT_HERE~~~~ && printenv && echo ~~~~START_CWD_HERE~~~~ && pwd"
@@ -31,19 +32,19 @@ def explain(lines: list[str], langs: list[str], inline_indices: list[str]) -> st
     for idx, line in enumerate(lines):
         if langs[idx] == "COMMENT":
             output += (
-                f"{ANSI_GREY}COMMENT{ANSI_RESET} | {ANSI_GREY}{line}{ANSI_RESET}\n"
+                f"{ANSI_GREY}COMMENT{ANSI_RESET}     | {ANSI_GREY}{line}{ANSI_RESET}\n"
             )
         elif langs[idx] == "BASH":
             output += (
-                f"{ANSI_BLUE}BASH{ANSI_RESET}    | {ANSI_BLUE}{line}{ANSI_RESET}\n"
+                f"{ANSI_BLUE}BASH{ANSI_RESET}        | {ANSI_BLUE}{line}{ANSI_RESET}\n"
             )
         elif langs[idx] == "PYTHON":
-            output += (
-                f"{ANSI_GREEN}PYTHON{ANSI_RESET}  | {ANSI_GREEN}{line}{ANSI_RESET}\n"
-            )
+            output += f"{ANSI_GREEN}PYTHON{ANSI_RESET}      | {ANSI_GREEN}{line}{ANSI_RESET}\n"
+        elif langs[idx] == "CALLIGRAPHY":
+            output += f"{ANSI_MAGENTA}CALLIGRAPHY{ANSI_RESET} | {ANSI_MAGENTA}{line}{ANSI_RESET}\n"
         else:
             inline_idx = [i for i in inline_indices if i[0] == idx][0]
-            output += f"{ANSI_CYAN}MIX{ANSI_RESET}     | {ANSI_GREEN}{line[:inline_idx[1]]}{ANSI_RESET}{ANSI_BLUE}{line[inline_idx[1]:inline_idx[2]+1]}{ANSI_RESET}{ANSI_GREEN}{line[inline_idx[2] + 1:]}{ANSI_RESET}\n"
+            output += f"{ANSI_CYAN}MIX{ANSI_RESET}         | {ANSI_GREEN}{line[:inline_idx[1]]}{ANSI_RESET}{ANSI_BLUE}{line[inline_idx[1]:inline_idx[2]+1]}{ANSI_RESET}{ANSI_GREEN}{line[inline_idx[2] + 1:]}{ANSI_RESET}\n"
 
     output = output.replace("<CALLIGRAPHY_NEWLINE>", "\n")
     return output

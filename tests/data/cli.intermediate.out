@@ -9,6 +9,7 @@ import subprocess
 import os
 import sys
 from typing import Union
+import importlib.util
 
 sys.argv = ['calligraphy', '<FILE_PATH>', 'Plagueis']
 
@@ -40,6 +41,26 @@ class Environment:
         """
 
         os.environ[name] = value
+
+
+def source_import(calligraphy_path, module_name):
+    if not calligraphy_path.endswith(".script"):
+        raise ImportError(
+            "Calligraphy only support sourcing other scripts that end with the '.script' extension"
+        )
+    if not os.path.exists(calligraphy_path):
+        raise FileNotFoundError(
+            f"Sourced script of '{calligraphy_path}' does not exist"
+        )
+
+    directory, script = os.path.split(calligraphy_path)
+    python_path = os.path.join(directory, f".{script[:-7]}.py")
+
+    spec = importlib.util.spec_from_file_location(module_name, python_path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    return module
 
 
 RC = 0

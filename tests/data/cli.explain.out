@@ -1,32 +1,32 @@
-PYTHON  | import sys
-PYTHON  | import os as osmod
-COMMENT | # This is a comment
-PYTHON  | dct = {
+PYTHON      | import sys
+PYTHON      | import os as osmod
+COMMENT     | # This is a comment
+PYTHON      | dct = {
     "a": "b"
 }
-PYTHON  | lst = [
+PYTHON      | lst = [
     "a",
     "b"
 ]
-PYTHON  | tup = (
+PYTHON      | tup = (
     "a",
     "b"
 )
-PYTHON  | env.ENV_NAME = 'foobar'
-MIX     | if $([[ "env.ENV_NAME" =~ ^([a-zA-Z0-9]|-)*$ ]]) == 0:
-PYTHON  |     print("success")
-BASH    | echo "This is a \"test\""
-PYTHON  | def search():
-PYTHON  |     env.SEARCH_PATH = sys.argv[1]
-PYTHON  |     env.SEARCH_TERM = sys.argv[2]
-BASH    |     echo "Searching in env.SEARCH_PATH"
-BASH    |     echo "Searching for env.SEARCH_TERM"
-PYTHON  |     print($?)
-PYTHON  |     osmod.getcwd()
-MIX     |     if $(cat "env.SEARCH_PATH" | grep -q "env.SEARCH_TERM") == 0:
-PYTHON  |         print('search string found')
-PYTHON  |     else:
-PYTHON  |         print('Could not find search string')
-MIX     |     env.FOO = $(echo "bar")
-PYTHON  | search()
+PYTHON      | env.ENV_NAME = 'foobar'
+MIX         | if $([[ "env.ENV_NAME" =~ ^([a-zA-Z0-9]|-)*$ ]]) == 0:
+PYTHON      |     print("success")
+BASH        | echo "This is a \"test\""
+PYTHON      | def search():
+PYTHON      |     env.SEARCH_PATH = sys.argv[1]
+PYTHON      |     env.SEARCH_TERM = sys.argv[2]
+BASH        |     echo "Searching in env.SEARCH_PATH"
+BASH        |     echo "Searching for env.SEARCH_TERM"
+PYTHON      |     print($?)
+PYTHON      |     osmod.getcwd()
+MIX         |     if $(cat "env.SEARCH_PATH" | grep -q "env.SEARCH_TERM") == 0:
+PYTHON      |         print('search string found')
+PYTHON      |     else:
+PYTHON      |         print('Could not find search string')
+MIX         |     env.FOO = $(echo "bar")
+PYTHON      | search()
 
