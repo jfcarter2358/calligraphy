@@ -29,6 +29,6 @@ clean:  ##       Remove test and doc artifacts
 docs:  ##        Generate documentation for calligraphy
 	cd docs && make html
 
-release:
+release:  ##        Release the current version of calligraphy
 	poetry build
 	poetry publish
