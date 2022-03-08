@@ -39,6 +39,7 @@ jobs:
       - name: Get coverage
         run: |
           COVERAGE=$(cat coverage.xml | grep "name=\".\"" | awk '{print $3}')
+          echo "${COVERAGE}"
 
           if [[ "${COVERAGE}" == "line-rate=\"1\"" ]]; then
               WHOLE="100"
