@@ -160,6 +160,37 @@ flags being supported:
 
 See the set_ documentation for information on each of the flags
 
+Bash Command Formatting
+-----------------------
+
+To make working with Bash commands easier in Calligraphy, you are able to include 
+variable values directly into Bash lines via f-string syntax. For example, the following
+code
+
+.. code-block::
+
+   foobar = "hello world"
+   echo "{foobar}"
+
+will produce
+
+.. code-block::
+
+   hello world
+
+while 
+
+.. code-block::
+
+   foobar = "hello world"
+   echo "{{foobar}}"
+
+will produce
+
+.. code-block::
+
+   {{foobar}}
+
 Recommended IDE Settings
 ------------------------
 

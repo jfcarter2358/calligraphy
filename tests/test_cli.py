@@ -319,3 +319,14 @@ def test_shellopts(capfd):
 
     assert escape_ansi(out) == shellopts_out
     assert escape_ansi(err) == shellopts_err
+
+def test_formatting(capfd):
+    with open(os.path.join(here, 'data', 'cli.formatting.out')) as out_file:
+        formatting_out = out_file.read()
+
+    # Test help flag passing
+    sys.argv = ['foobar', os.path.join(here, 'data', 'test5.script')]
+    cli.cli()
+    out, _ = capfd.readouterr()
+
+    assert escape_ansi(out) == formatting_out

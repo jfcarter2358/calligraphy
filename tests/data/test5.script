@@ -1,0 +1,4 @@
+# type: ignore
+
+foobar = "hello world"
+echo "{foobar}"

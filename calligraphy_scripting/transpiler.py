@@ -75,12 +75,12 @@ def transpile(lines: list[str], langs: list[str], inline_indices: list[str]) -> 
         elif langs[idx] == "BASH":
             indent = " " * (len(line) - len(line.lstrip()))
             cmd = line.lstrip()
-            cmd = re.sub(env_pattern, r"${\g<1>}", cmd)
+            cmd = re.sub(env_pattern, r"${{\g<1>}}", cmd)
             cmd = re.sub(bash_rc_pattern, "$CALLIGRAPHY_RC", cmd)
             cmd_bytes = cmd.encode("utf-8")
             base64_cmd_bytes = base64.b64encode(cmd_bytes)
             base64_cmd = base64_cmd_bytes.decode("utf8")
-            output += f'{indent}shell("{base64_cmd}")\n'
+            output += f'{indent}shell("{base64_cmd}", format_dict={{**globals(), **locals()}})\n'
         elif langs[idx] == "PYTHON":
             line = re.sub(rc_pattern, "RC", line)
             line = re.sub(arg_pattern, r"sys.argv[\g<1>]", line)
@@ -89,15 +89,15 @@ def transpile(lines: list[str], langs: list[str], inline_indices: list[str]) -> 
             inline_idx = [i for i in inline_indices if i[0] == idx][0]
             raw = line[inline_idx[1] : inline_idx[2]]
             cmd = raw[2:-1]
-            cmd = re.sub(env_pattern, r"${\g<1>}", cmd)
+            cmd = re.sub(env_pattern, r"${{\g<1>}}", cmd)
             cmd = re.sub(bash_rc_pattern, "$CALLIGRAPHY_RC", cmd)
             cmd_bytes = cmd.encode("utf-8")
             base64_cmd_bytes = base64.b64encode(cmd_bytes)
             base64_cmd = base64_cmd_bytes.decode("utf8")
             if "if" in line[: inline_idx[1]].split(" "):
-                output += f'{line[:inline_idx[1]]}shell("{base64_cmd}", get_rc=True, silent={raw[0]=="?"}){line[inline_idx[2]:]}\n'
+                output += f'{line[:inline_idx[1]]}shell("{base64_cmd}", get_rc=True, silent={raw[0]=="?"}, format_dict={{**globals(), **locals()}}){line[inline_idx[2]:]}\n'
             else:
-                output += f'{line[:inline_idx[1]]}shell("{base64_cmd}", get_stdout=True, silent={raw[0]=="?"}){line[inline_idx[2]:]}\n'
+                output += f'{line[:inline_idx[1]]}shell("{base64_cmd}", get_stdout=True, silent={raw[0]=="?"}, format_dict={{**globals(), **locals()}}){line[inline_idx[2]:]}\n'
 
     output = output.replace("<CALLIGRAPHY_NEWLINE>", "\n")
     return output
