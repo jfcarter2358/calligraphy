@@ -164,7 +164,11 @@ shellopts = Options()
 
 
 def shell(
-    cmd: str, get_rc: bool = False, get_stdout: bool = False, silent: bool = False
+    cmd: str,
+    get_rc: bool = False,
+    get_stdout: bool = False,
+    silent: bool = False,
+    format_dict: dict = {},
 ) -> Union[None, str, int]:
     """Perform a shell call and update the environment with any env variable changes
 
@@ -176,6 +180,7 @@ def shell(
             returned. Defaults to False.
         silent (bool, optional): Should the output to stdout be suppressed when printing
             to the terminal. Defaults to False.
+        format_dict (dict): Dictionary of values to use in command formatting
 
     Returns:
         Union[None, str, int]: Default None, stdout contents if get_stdout is True and
@@ -187,7 +192,9 @@ def shell(
 
     cmd_bytes = cmd.encode("utf-8")
     decoded_bytes = base64.b64decode(cmd_bytes)
+
     decoded = decoded_bytes.decode("utf-8")
+    decoded = decoded.format(**format_dict)
 
     decoded = f"{shellopts.bash_string()} && {decoded} && echo '\n' && echo ~~~~START_ENVIRONMENT_HERE~~~~ && printenv && echo ~~~~START_CWD_HERE~~~~ && pwd"
 

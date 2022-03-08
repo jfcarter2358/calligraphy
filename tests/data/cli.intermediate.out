@@ -164,7 +164,11 @@ shellopts = Options()
 
 
 def shell(
-    cmd: str, get_rc: bool = False, get_stdout: bool = False, silent: bool = False
+    cmd: str,
+    get_rc: bool = False,
+    get_stdout: bool = False,
+    silent: bool = False,
+    format_dict: dict = {},
 ) -> Union[None, str, int]:
     """Perform a shell call and update the environment with any env variable changes
 
@@ -176,6 +180,7 @@ def shell(
             returned. Defaults to False.
         silent (bool, optional): Should the output to stdout be suppressed when printing
             to the terminal. Defaults to False.
+        format_dict (dict): Dictionary of values to use in command formatting
 
     Returns:
         Union[None, str, int]: Default None, stdout contents if get_stdout is True and
@@ -187,7 +192,9 @@ def shell(
 
     cmd_bytes = cmd.encode("utf-8")
     decoded_bytes = base64.b64decode(cmd_bytes)
+
     decoded = decoded_bytes.decode("utf-8")
+    decoded = decoded.format(**format_dict)
 
     decoded = f"{shellopts.bash_string()} && {decoded} && echo '\n' && echo ~~~~START_ENVIRONMENT_HERE~~~~ && printenv && echo ~~~~START_CWD_HERE~~~~ && pwd"
 
@@ -258,20 +265,20 @@ tup = (
     "b"
 )
 env.ENV_NAME = 'foobar'
-if shell("W1sgIiR7RU5WX05BTUV9IiA9fiBeKFthLXpBLVowLTldfC0pKiQgXV0=", get_rc=True, silent=False) == 0:
+if shell("W1sgIiR7e0VOVl9OQU1FfX0iID1+IF4oW2EtekEtWjAtOV18LSkqJCBdXQ==", get_rc=True, silent=False, format_dict={**globals(), **locals()}) == 0:
     print("success")
-shell("ZWNobyAiVGhpcyBpcyBhIFwidGVzdFwiIg==")
+shell("ZWNobyAiVGhpcyBpcyBhIFwidGVzdFwiIg==", format_dict={**globals(), **locals()})
 def search():
     env.SEARCH_PATH = sys.argv[1]
     env.SEARCH_TERM = sys.argv[2]
-    shell("ZWNobyAiU2VhcmNoaW5nIGluICR7U0VBUkNIX1BBVEh9Ig==")
-    shell("ZWNobyAiU2VhcmNoaW5nIGZvciAke1NFQVJDSF9URVJNfSI=")
+    shell("ZWNobyAiU2VhcmNoaW5nIGluICR7e1NFQVJDSF9QQVRIfX0i", format_dict={**globals(), **locals()})
+    shell("ZWNobyAiU2VhcmNoaW5nIGZvciAke3tTRUFSQ0hfVEVSTX19Ig==", format_dict={**globals(), **locals()})
     print(RC)
     osmod.getcwd()
-    if shell("Y2F0ICIke1NFQVJDSF9QQVRIfSIgfCBncmVwIC1xICIke1NFQVJDSF9URVJNfSI=", get_rc=True, silent=False) == 0:
+    if shell("Y2F0ICIke3tTRUFSQ0hfUEFUSH19IiB8IGdyZXAgLXEgIiR7e1NFQVJDSF9URVJNfX0i", get_rc=True, silent=False, format_dict={**globals(), **locals()}) == 0:
         print('search string found')
     else:
         print('Could not find search string')
-    env.FOO = shell("ZWNobyAiYmFyIg==", get_stdout=True, silent=False)
+    env.FOO = shell("ZWNobyAiYmFyIg==", get_stdout=True, silent=False, format_dict={**globals(), **locals()})
 search()
 
