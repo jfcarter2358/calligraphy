@@ -127,6 +127,39 @@ This has the same effect as if you had imported the transpiled output of ``foo.s
 under the module name ``foo`` or had imported the transpiled output of ``bar.script`` 
 under the module name ``baz``.
 
+Shell Options
+-------------
+
+Normally in Bash scripts you can control shell options with the set_ command.
+This functionality has been moved to the ``shellopts`` variable in Calligraphy. To use
+it, include ``shellopts.<FLAG>`` in your Calligraphy script with the following list of
+flags being supported:
+
+- ``a``
+- ``b``
+- ``e`` (on by default)
+- ``f``
+- ``h`` (on by default)
+- ``k``
+- ``m``
+- ``p``
+- ``t``
+- ``u``
+- ``v``
+- ``x``
+- ``B`` (on by default)
+- ``C``
+- ``E``
+- ``H`` (on by default)
+- ``P``
+- ``T``
+- ``history``
+- ``ignoreeof``
+- ``pipefail`` (on by default)
+- ``posix``
+
+See the set_ documentation for information on each of the flags
+
 Recommended IDE Settings
 ------------------------
 
@@ -134,3 +167,5 @@ When working in an IDE with Calligraphy, it is recommended that you configure th
 ``.script`` extension to be subject to Python syntax highlighting. In addition, add
 ``# type: ignore`` to the top of your file so that built-in linters don't complain about
 the Bash present in the file.
+
+.. _set: https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html

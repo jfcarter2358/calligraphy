@@ -11,7 +11,6 @@ ANSI_CYAN = "\033[36m"
 ANSI_MAGENTA = "\033[35m"
 ANSI_GREY = "\033[90m"
 ANSI_RESET = "\033[0m"
-CMD_SUFFIX = " && echo '\n' && echo ~~~~START_ENVIRONMENT_HERE~~~~ && printenv && echo ~~~~START_CWD_HERE~~~~ && pwd"
 
 
 def explain(lines: list[str], langs: list[str], inline_indices: list[str]) -> str:
@@ -78,7 +77,6 @@ def transpile(lines: list[str], langs: list[str], inline_indices: list[str]) -> 
             cmd = line.lstrip()
             cmd = re.sub(env_pattern, r"${\g<1>}", cmd)
             cmd = re.sub(bash_rc_pattern, "$CALLIGRAPHY_RC", cmd)
-            cmd += CMD_SUFFIX
             cmd_bytes = cmd.encode("utf-8")
             base64_cmd_bytes = base64.b64encode(cmd_bytes)
             base64_cmd = base64_cmd_bytes.decode("utf8")
@@ -93,7 +91,6 @@ def transpile(lines: list[str], langs: list[str], inline_indices: list[str]) -> 
             cmd = raw[2:-1]
             cmd = re.sub(env_pattern, r"${\g<1>}", cmd)
             cmd = re.sub(bash_rc_pattern, "$CALLIGRAPHY_RC", cmd)
-            cmd += CMD_SUFFIX
             cmd_bytes = cmd.encode("utf-8")
             base64_cmd_bytes = base64.b64encode(cmd_bytes)
             base64_cmd = base64_cmd_bytes.decode("utf8")

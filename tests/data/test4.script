@@ -1,0 +1,5 @@
+# type: ignore
+
+shellopts.x = True
+
+echo "foo" | echo "bar" | echo "baz"

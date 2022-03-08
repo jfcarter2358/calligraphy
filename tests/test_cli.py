@@ -54,11 +54,11 @@ def test_explain(capfd):
     with open(os.path.join(here, 'data', 'cli.explain.stdin.out')) as out_file:
         explain_stdin_out = out_file.read()
 
-    with open(os.path.join(here, 'data', 'test.script')) as script_file:
+    with open(os.path.join(here, 'data', 'test1.script')) as script_file:
         script = script_file.read()
 
     # Test with file
-    cli.explain(os.path.join(here, 'data', 'test.script'))
+    cli.explain(os.path.join(here, 'data', 'test1.script'))
     out, _ = capfd.readouterr()
 
     assert escape_ansi(out) == explain_out
@@ -81,11 +81,11 @@ def test_intermediate(capfd):
         intermediate_stdin_out = out_file.read()
     intermediate_stdin_out = intermediate_stdin_out.replace('<FILE_PATH>', file_path)
 
-    with open(os.path.join(here, 'data', 'test.script')) as script_file:
+    with open(os.path.join(here, 'data', 'test1.script')) as script_file:
         script = script_file.read()
 
     # Test with file
-    cli.intermediate(os.path.join(here, 'data', 'test.script'), [file_path, 'Plagueis'])
+    cli.intermediate(os.path.join(here, 'data', 'test1.script'), [file_path, 'Plagueis'])
     out, _ = capfd.readouterr()
 
     assert escape_ansi(out) == intermediate_out
@@ -105,11 +105,11 @@ def test_execute(capfd):
         execute_out = out_file.read()
     execute_out = execute_out.replace('<FILE_PATH>', file_path)
 
-    with open(os.path.join(here, 'data', 'test.script')) as script_file:
+    with open(os.path.join(here, 'data', 'test1.script')) as script_file:
         script = script_file.read()
 
     # Test with file
-    cli.execute(os.path.join(here, 'data', 'test.script'), [file_path, 'Plagueis'])
+    cli.execute(os.path.join(here, 'data', 'test1.script'), [file_path, 'Plagueis'])
     out, _ = capfd.readouterr()
 
     assert escape_ansi(out) == execute_out
@@ -150,7 +150,7 @@ def test_calligraphy_cli(capfd):
     with open(os.path.join(here, 'data', 'cli.cli.no_program.out')) as out_file:
         no_program_out = out_file.read()
 
-    with open(os.path.join(here, 'data', 'test.script')) as script_file:
+    with open(os.path.join(here, 'data', 'test1.script')) as script_file:
         script = script_file.read()
 
     # test no args
@@ -204,7 +204,7 @@ def test_calligraphy_cli(capfd):
     assert escape_ansi(out) == version_out
 
     # Test intermediate flag
-    sys.argv = ['foobar', '-i', os.path.join(here, 'data', 'test.script'), file_path, 'Plagueis']
+    sys.argv = ['foobar', '-i', os.path.join(here, 'data', 'test1.script'), file_path, 'Plagueis']
     with pytest.raises(SystemExit) as pytest_wrapped_e:
             cli.cli()
     assert pytest_wrapped_e.type == SystemExit
@@ -214,7 +214,7 @@ def test_calligraphy_cli(capfd):
     assert escape_ansi(out) == intermediate_out
 
     # Test long intermediate flag
-    sys.argv = ['foobar', '--intermediate', os.path.join(here, 'data', 'test.script'), file_path, 'Plagueis']
+    sys.argv = ['foobar', '--intermediate', os.path.join(here, 'data', 'test1.script'), file_path, 'Plagueis']
     with pytest.raises(SystemExit) as pytest_wrapped_e:
             cli.cli()
     assert pytest_wrapped_e.type == SystemExit
@@ -226,7 +226,7 @@ def test_calligraphy_cli(capfd):
     assert escape_ansi(out) == intermediate_out
 
     # Test intermediate flag conflict
-    sys.argv = ['foobar', '--intermediate', '-e', os.path.join(here, 'data', 'test.script'), file_path, 'Plagueis']
+    sys.argv = ['foobar', '--intermediate', '-e', os.path.join(here, 'data', 'test1.script'), file_path, 'Plagueis']
     with pytest.raises(SystemExit) as pytest_wrapped_e:
             cli.cli()
     assert pytest_wrapped_e.type == SystemExit
@@ -236,7 +236,7 @@ def test_calligraphy_cli(capfd):
     assert escape_ansi(out) == conflict_out
 
     # Test explain flag
-    sys.argv = ['foobar', '-e', os.path.join(here, 'data', 'test.script')]
+    sys.argv = ['foobar', '-e', os.path.join(here, 'data', 'test1.script')]
     with pytest.raises(SystemExit) as pytest_wrapped_e:
             cli.cli()
     assert pytest_wrapped_e.type == SystemExit
@@ -246,7 +246,7 @@ def test_calligraphy_cli(capfd):
     assert escape_ansi(out) == explain_out
 
     # Test long explain flag
-    sys.argv = ['foobar', '--explain', os.path.join(here, 'data', 'test.script')]
+    sys.argv = ['foobar', '--explain', os.path.join(here, 'data', 'test1.script')]
     with pytest.raises(SystemExit) as pytest_wrapped_e:
             cli.cli()
     assert pytest_wrapped_e.type == SystemExit
@@ -256,7 +256,7 @@ def test_calligraphy_cli(capfd):
     assert escape_ansi(out) == explain_out
 
     # Test explain flag conflict
-    sys.argv = ['foobar', '-e', '-i', os.path.join(here, 'data', 'test.script')]
+    sys.argv = ['foobar', '-e', '-i', os.path.join(here, 'data', 'test1.script')]
     with pytest.raises(SystemExit) as pytest_wrapped_e:
             cli.cli()
     assert pytest_wrapped_e.type == SystemExit
@@ -276,7 +276,7 @@ def test_calligraphy_cli(capfd):
     assert escape_ansi(out) == no_program_out
 
     # Test running a script
-    sys.argv = ['foobar', os.path.join(here, 'data', 'test.script'), file_path, 'Plagueis']
+    sys.argv = ['foobar', os.path.join(here, 'data', 'test1.script'), file_path, 'Plagueis']
     cli.cli()
     out, _ = capfd.readouterr()
 
@@ -305,3 +305,17 @@ def test_help_flag(capfd):
     out, _ = capfd.readouterr()
 
     assert escape_ansi(out) == explain_out
+
+def test_shellopts(capfd):
+    with open(os.path.join(here, 'data', 'cli.shellopts.out')) as out_file:
+        shellopts_out = out_file.read()
+    with open(os.path.join(here, 'data', 'cli.shellopts.err')) as err_file:
+        shellopts_err = err_file.read()
+
+    # Test help flag passing
+    sys.argv = ['foobar', os.path.join(here, 'data', 'test4.script')]
+    cli.cli()
+    out, err = capfd.readouterr()
+
+    assert escape_ansi(out) == shellopts_out
+    assert escape_ansi(err) == shellopts_err
