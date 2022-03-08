@@ -38,9 +38,29 @@ jobs:
           pytest --cov=calligraphy_scripting --cov-report=xml --cov-fail-under=95 -W ignore::DeprecationWarning
       - name: Get coverage
         run: |
-          WHOLE=$(cat coverage.xml | grep "name=\".\"" | awk '{print $3}' | cut -c14-15)
-          DECIMAL=$(cat coverage.xml | grep "name=\".\"" | awk '{print $3}' | cut -c16-17)
+          COVERAGE=$(cat coverage.xml | grep "name=\".\"" | awk '{print $3}')
+
+          if [[ "${COVERAGE}" == "line-rate=\"1\"" ]]; then
+              WHOLE="100"
+              DECIMAL="00"
+              COLOR="brightgreen"
+          else
+              WHOLE=$(echo "${COVERAGE}" | cut -c14-15)
+              DECIMAL=$(echo "${COVERAGE}" | cut -c16-17)
+              if [ "${WHOLE}" -gt "80" ]; then
+                  COLOR="green"
+              elif [ "${WHOLE}" -gt "60" ]; then
+                  COLOR="yellowgreen"
+              elif [ "${WHOLE}" -gt "40" ]; then
+                  COLOR="yellow"
+              elif [ "${WHOLE}" -gt "20" ]; then
+                  COLOR="orange"
+              else
+                  COLOR="red"
+              fi
+          fi
           echo "COVERAGE=$(echo ${WHOLE}.${DECIMAL}%)" >> $GITHUB_ENV
+          echo "COLOR=$(echo ${COLOR})" >> $GITHUB_ENV
 
           REF=${{ github.ref }}
           echo "github.ref: $REF"
@@ -56,5 +76,5 @@ jobs:
           filename: calligraphy__${{ env.BRANCH }}.json
           label: Test Coverage
           message: ${{ env.COVERAGE }}
-          color: brightgreen
+          color: ${{ env.COLOR }}
           namedLogo: pytest
