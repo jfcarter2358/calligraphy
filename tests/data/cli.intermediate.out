@@ -8,6 +8,7 @@ scripts run
 import subprocess
 import os
 import sys
+import base64
 from typing import Union
 import importlib.util
 
@@ -15,7 +16,7 @@ sys.argv = ['calligraphy', '<FILE_PATH>', 'Plagueis']
 
 
 class Environment:
-    """A class to act as a convient method to access environment variables"""
+    """A class to act as a convenient method to access environment variables"""
 
     def __init__(self) -> None:
         """Initialize the Environment object"""
@@ -43,6 +44,100 @@ class Environment:
         os.environ[name] = value
 
 
+class Options:
+    """A class to make setting of bash shell options more convenient"""
+
+    def __init__(self) -> None:
+        """Initialize the Options object and set all shell options to default values"""
+
+        # ignores:
+        # * -n
+        # * -o noexec
+        # * -o emacs
+        # * -o vi
+        self.a = False
+        self.b = False
+        self.e = True  # non-default
+        self.f = False
+        self.h = True
+        self.k = False
+        self.m = False
+        self.p = False
+        self.t = False
+        self.u = False
+        self.v = False
+        self.x = False
+        self.B = True
+        self.C = False
+        self.E = False
+        self.H = True
+        self.P = False
+        self.T = False
+        self.history = True
+        self.ignoreeof = False
+        self.pipefail = True  # non-default
+        self.posix = False
+
+        self.keys = [
+            "a",
+            "b",
+            "e",
+            "f",
+            "h",
+            "k",
+            "m",
+            "p",
+            "t",
+            "u",
+            "v",
+            "x",
+            "B",
+            "C",
+            "E",
+            "H",
+            "P",
+            "T",
+            "history",
+            "ignoreeof",
+            "pipefail",
+            "posix",
+        ]
+
+    def bash_string(self) -> None:
+        """Construct the set command for all the options and their values"""
+
+        true_single_opts = [
+            key for key in self.keys if getattr(self, key) == True and len(key) == 1
+        ]
+        false_single_opts = [
+            key for key in self.keys if getattr(self, key) == False and len(key) == 1
+        ]
+        true_multiple_opts = [
+            key for key in self.keys if getattr(self, key) == True and len(key) > 1
+        ]
+        false_multiple_opts = [
+            key for key in self.keys if getattr(self, key) == False and len(key) > 1
+        ]
+
+        string = "set "
+        if len(true_single_opts) > 0:
+            string += "-"
+            for opt in true_single_opts:
+                string += opt
+            string += " "
+        if len(false_single_opts) > 0:
+            string += "+"
+            for opt in false_single_opts:
+                string += opt
+            string += " "
+        for opt in true_multiple_opts:
+            string += f"-o {opt} "
+        for opt in false_multiple_opts:
+            string += f"+o {opt} "
+
+        return string
+
+
 def source_import(calligraphy_path, module_name):
     if not calligraphy_path.endswith(".script"):
         raise ImportError(
@@ -65,6 +160,7 @@ def source_import(calligraphy_path, module_name):
 
 RC = 0
 env = Environment()
+shellopts = Options()
 
 
 def shell(
@@ -88,6 +184,17 @@ def shell(
 
     global RC
     global env
+
+    cmd_bytes = cmd.encode("utf-8")
+    decoded_bytes = base64.b64decode(cmd_bytes)
+    decoded = decoded_bytes.decode("utf-8")
+
+    decoded = f"{shellopts.bash_string()} && {decoded} && echo '\n' && echo ~~~~START_ENVIRONMENT_HERE~~~~ && printenv && echo ~~~~START_CWD_HERE~~~~ && pwd"
+
+    decoded_bytes = decoded.encode("utf-8")
+    cmd_bytes = base64.b64encode(decoded_bytes)
+    cmd = cmd_bytes.decode("utf-8")
+
     cmd = f"echo '{cmd}' | base64 -d | bash"
     stdout = []
     envout = []
@@ -151,20 +258,20 @@ tup = (
     "b"
 )
 env.ENV_NAME = 'foobar'
-if shell("W1sgIiR7RU5WX05BTUV9IiA9fiBeKFthLXpBLVowLTldfC0pKiQgXV0gJiYgZWNobyAnCicgJiYgZWNobyB+fn5+U1RBUlRfRU5WSVJPTk1FTlRfSEVSRX5+fn4gJiYgcHJpbnRlbnYgJiYgZWNobyB+fn5+U1RBUlRfQ1dEX0hFUkV+fn5+ICYmIHB3ZA==", get_rc=True, silent=False) == 0:
+if shell("W1sgIiR7RU5WX05BTUV9IiA9fiBeKFthLXpBLVowLTldfC0pKiQgXV0=", get_rc=True, silent=False) == 0:
     print("success")
-shell("ZWNobyAiVGhpcyBpcyBhIFwidGVzdFwiIiAmJiBlY2hvICcKJyAmJiBlY2hvIH5+fn5TVEFSVF9FTlZJUk9OTUVOVF9IRVJFfn5+fiAmJiBwcmludGVudiAmJiBlY2hvIH5+fn5TVEFSVF9DV0RfSEVSRX5+fn4gJiYgcHdk")
+shell("ZWNobyAiVGhpcyBpcyBhIFwidGVzdFwiIg==")
 def search():
     env.SEARCH_PATH = sys.argv[1]
     env.SEARCH_TERM = sys.argv[2]
-    shell("ZWNobyAiU2VhcmNoaW5nIGluICR7U0VBUkNIX1BBVEh9IiAmJiBlY2hvICcKJyAmJiBlY2hvIH5+fn5TVEFSVF9FTlZJUk9OTUVOVF9IRVJFfn5+fiAmJiBwcmludGVudiAmJiBlY2hvIH5+fn5TVEFSVF9DV0RfSEVSRX5+fn4gJiYgcHdk")
-    shell("ZWNobyAiU2VhcmNoaW5nIGZvciAke1NFQVJDSF9URVJNfSIgJiYgZWNobyAnCicgJiYgZWNobyB+fn5+U1RBUlRfRU5WSVJPTk1FTlRfSEVSRX5+fn4gJiYgcHJpbnRlbnYgJiYgZWNobyB+fn5+U1RBUlRfQ1dEX0hFUkV+fn5+ICYmIHB3ZA==")
+    shell("ZWNobyAiU2VhcmNoaW5nIGluICR7U0VBUkNIX1BBVEh9Ig==")
+    shell("ZWNobyAiU2VhcmNoaW5nIGZvciAke1NFQVJDSF9URVJNfSI=")
     print(RC)
     osmod.getcwd()
-    if shell("Y2F0ICIke1NFQVJDSF9QQVRIfSIgfCBncmVwIC1xICIke1NFQVJDSF9URVJNfSIgJiYgZWNobyAnCicgJiYgZWNobyB+fn5+U1RBUlRfRU5WSVJPTk1FTlRfSEVSRX5+fn4gJiYgcHJpbnRlbnYgJiYgZWNobyB+fn5+U1RBUlRfQ1dEX0hFUkV+fn5+ICYmIHB3ZA==", get_rc=True, silent=False) == 0:
+    if shell("Y2F0ICIke1NFQVJDSF9QQVRIfSIgfCBncmVwIC1xICIke1NFQVJDSF9URVJNfSI=", get_rc=True, silent=False) == 0:
         print('search string found')
     else:
         print('Could not find search string')
-    env.FOO = shell("ZWNobyAiYmFyIiAmJiBlY2hvICcKJyAmJiBlY2hvIH5+fn5TVEFSVF9FTlZJUk9OTUVOVF9IRVJFfn5+fiAmJiBwcmludGVudiAmJiBlY2hvIH5+fn5TVEFSVF9DV0RfSEVSRX5+fn4gJiYgcHdk", get_stdout=True, silent=False)
+    env.FOO = shell("ZWNobyAiYmFyIg==", get_stdout=True, silent=False)
 search()
 

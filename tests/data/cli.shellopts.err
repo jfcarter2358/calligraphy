@@ -1,0 +1,9 @@
++ echo foo
++ echo bar
++ echo baz
++ echo '
+'
++ echo '~~~~START_ENVIRONMENT_HERE~~~~'
++ printenv
++ echo '~~~~START_CWD_HERE~~~~'
++ pwd

@@ -49,13 +49,14 @@ there are a few rules that must be followed:
    script won't give you ``'__main__'``. Changes to this behavior are currently on the
    roadmap, but until then this pattern is disallowed in the language.
 
-3. ``env``, ``shell``, and ``Environment`` are reserved
+3. ``env``, ``shell``, ``shellopts``, ``Options``, and ``Environment`` are reserved
 
    All the normal Python keywords apply in Calligraphy, however three new ones have been
-   added. ``env`` is and object of the ``Environment`` class used to get/set environment 
+   added. ``env`` is an object of the ``Environment`` class used to get/set environment 
    variables so both of those are no longer available. In addition, ``shell`` is the name 
    of the function used to execute shell commands in the transpiled code, so that is also
-   protected.
+   protected. Finally, you cannot use ``shellopts`` and ``Options`` as those are the 
+   variable/class used for setting shell options.
 
 4. Any lines written entirely in Bash will be executed in Bash
 
@@ -110,3 +111,13 @@ there are a few rules that must be followed:
    ``foo.bar`` to access the variable ``bar`` within the ``foo`` module. You can also 
    use ``source path/to/foo.script as baz`` to rename the import, meaning you would
    instead use ``baz.bar`` instead of ``foo.bar``
+
+10. You can set shell options using the ``shellopts`` variable
+
+   In order to control shell options for your bash commands, you can use the ``shellopts``
+   built-in variable. To do this, you'll want to use something of the following form:
+
+   .. code-block::
+
+      shellopts.x = True
+      shellopts.pipefail = True

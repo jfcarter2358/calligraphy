@@ -238,7 +238,7 @@ def determine_language(
     assignment_pattern = r"^[ \t]*\(?((?:[a-zA-Z0-9_]+\s*,?\s*)+)\)?[ \t]$"
 
     lines = [line for line in code.split("\n") if len(line.strip()) > 0]
-    variables = ["env."]
+    variables = ["env.", "shellopts."]
     langs = []
     imports = get_imports(code)
     functions = get_functions(code)
