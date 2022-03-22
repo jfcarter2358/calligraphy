@@ -182,6 +182,10 @@ def shell(
             to the terminal. Defaults to False.
         format_dict (dict): Dictionary of values to use in command formatting
 
+    Raises:
+        RuntimeError: The shell command exited with a non-zero return code when not in
+            an if statement where the RC is being explicitly checked
+
     Returns:
         Union[None, str, int]: Default None, stdout contents if get_stdout is True and
             return code if get_rc is True
@@ -237,12 +241,21 @@ def shell(
         RC = proc.poll()
 
     env.CALLIGRAPHY_RC = str(RC)
+
+    # change our directory to where the shell command took us
     os.chdir(cwd_path)
 
+    # update environment with what was modified by the shell command
     for line in envout:
         line = line.strip().split("=")
         if len(line) > 1:
             os.environ[line[0]] = line[1]
+
+    # we don't want to raise exceptions if a user is checking for the return code
+    # explicitly
+    if not get_rc and shellopts.e and RC != 0:
+        raise RuntimeError(f"The shell command failed with return code {RC}")
+
     if get_stdout:
         return "\n".join(stdout)
     if get_rc:

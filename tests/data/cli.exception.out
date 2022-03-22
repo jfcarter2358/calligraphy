@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "<string>", line 267, in <module>
+  File "<string>", line 257, in shell
+RuntimeError: The shell command failed with return code 1
+
+Use `calligraphy -i <FILE_PATH>` to see the intermediate Python for debugging
