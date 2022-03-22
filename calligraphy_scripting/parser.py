@@ -40,10 +40,8 @@ def handle_sourcing(contents: str) -> str:
             ) as output_file:
                 output_file.write(code)
 
-    source_pattern = (
-        r"^[ \t]*source[ \t]+([a-zA-Z0-9_/]*)\/([a-zA-Z0-9_]*)\.([a-zA-Z0-9]*)[ \t]*$"
-    )
-    source_pattern_rename = r"^[ \t]*source[ \t]+([a-zA-Z0-9_/]*)\/([a-zA-Z0-9_]*)\.([a-zA-Z0-9]*)[ \t]as[ \t]([a-zA-Z0-9_]*)[ \t]*$"
+    source_pattern = r"^[ \t]*source[ \t]+(?:([a-zA-Z0-9_/]*)\/)*([a-zA-Z0-9_]*)\.([a-zA-Z0-9]*)[ \t]*$"
+    source_pattern_rename = r"^[ \t]*source[ \t]+(?:([a-zA-Z0-9_/]*)\/)*([a-zA-Z0-9_]*)\.([a-zA-Z0-9]*)[ \t]as[ \t]([a-zA-Z0-9_]*)[ \t]*"
 
     sourced = re.findall(source_pattern, contents, re.MULTILINE)
     sourced_rename = re.findall(source_pattern_rename, contents, re.MULTILINE)

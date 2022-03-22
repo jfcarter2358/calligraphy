@@ -1,9 +1,10 @@
-# pylint: disable=C0301, R1702, R0912, R0914, W0122, W1401
+# pylint: disable=C0301, R1702, R0912, R0914, W0122, W1401, W0703
 """Main entrypoint into Calligraphy that handles CLI parsing"""
 
 from __future__ import annotations
 import sys
 import os
+import traceback
 from calligraphy_scripting import parser
 from calligraphy_scripting import transpiler
 from calligraphy_scripting import __version__
@@ -120,7 +121,21 @@ def execute(path: str, args: list) -> None:
     code = f"{header}\n\n{transpiled}"
 
     # Run the code
-    exec(code, globals())
+    try:
+        exec(code, globals())
+    except Exception:
+        trace = traceback.format_exc()
+        parts = trace.split("\n")
+        idx = 1
+        exception_out = [parts[0]]
+        while not parts[idx].startswith('  File "<string>"') and idx < len(parts):
+            idx += 1
+        while idx < len(parts):
+            exception_out.append(parts[idx])
+            idx += 1
+        print("\n".join(exception_out))
+        help_prefix = f'Use `calligraphy -i {path} {" ".join(args)}'.strip()
+        print(f"{help_prefix}` to see the intermediate Python for debugging")
 
 
 def cli() -> None:
@@ -153,15 +168,14 @@ def cli() -> None:
 
     # Parse arguments
     for arg in args:
+        if program_path:
+            program_args.append(arg)
+            continue
         if arg in ("-n", "--no-ansi"):
             continue  # pragma: no cover
         if arg in ("-h", "--help"):
-            if not program_path:
-                print(help_text)
-                sys.exit(0)
-            else:
-                program_args.append(arg)
-                continue
+            print(help_text)
+            sys.exit(0)
         if arg in ("-v", "--version"):
             version()
             sys.exit(0)
@@ -181,10 +195,7 @@ def cli() -> None:
                 )
                 sys.exit(1)
             continue  # pragma: no cover
-        if not program_path:
-            program_path = arg
-            continue
-        program_args.append(arg)
+        program_path = arg
 
     # Make sure a program path was supplied
     if not program_path:

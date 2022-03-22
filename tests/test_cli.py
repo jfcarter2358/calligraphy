@@ -297,7 +297,7 @@ def test_help_flag(capfd):
     assert escape_ansi(out) == help_flag_out
 
     # Test explain output with source
-    sys.argv = ['foobar', os.path.join(here, 'data', 'test2.script'), '-e']
+    sys.argv = ['foobar', '-e', os.path.join(here, 'data', 'test2.script')]
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         cli.cli()
     assert pytest_wrapped_e.type == SystemExit
@@ -326,6 +326,20 @@ def test_formatting(capfd):
 
     # Test help flag passing
     sys.argv = ['foobar', os.path.join(here, 'data', 'test5.script')]
+    cli.cli()
+    out, _ = capfd.readouterr()
+
+    assert escape_ansi(out) == formatting_out
+
+def test_exception(capfd):
+    file_path = os.path.join(here, 'data', 'test6.script')
+
+    with open(os.path.join(here, 'data', 'cli.exception.out')) as out_file:
+        formatting_out = out_file.read()
+    formatting_out = formatting_out.replace('<FILE_PATH>', file_path)
+
+    # Test help flag passing
+    sys.argv = ['foobar', os.path.join(here, 'data', 'test6.script')]
     cli.cli()
     out, _ = capfd.readouterr()
 
