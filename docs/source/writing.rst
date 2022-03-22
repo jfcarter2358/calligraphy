@@ -121,3 +121,12 @@ there are a few rules that must be followed:
 
       shellopts.x = True
       shellopts.pipefail = True
+
+11. If ``shellopts.e`` is set then any non-if statement bash commands which have a non-zero RC will throw a ``RuntimeError``
+
+   To make it easier to write scripts that behave properly, the ``shell`` function will 
+   throw a ``RuntimeError`` when the following conditions are met:
+      
+      1. ``shellopts.e`` is True (set by default in Calligraphy)
+      2. The shell command is not inside an if statement
+      3. The shell command reports a non-zero RC
