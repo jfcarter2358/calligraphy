@@ -189,7 +189,7 @@ will produce
 
 .. code-block::
 
-   {{foobar}}
+   {foobar}
 
 Recommended IDE Settings
 ------------------------
