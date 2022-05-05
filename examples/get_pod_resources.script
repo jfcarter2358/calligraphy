@@ -1,0 +1,27 @@
+#! /usr/bin/env calligraphy
+# type: ignore
+
+# This file will get the resources for all containers and initContainers present in pods
+# in your currently active Kubernetes cluster/namespace
+# It will then print them out neatly so you can verify what is set on each pod/container
+
+import json
+
+pods = ?(kubectl get pods | tail -n +2 | awk '{{print $1}}').split('\n')[:-1]
+
+for pod in pods:
+    print(pod)
+    pod_data = json.loads(?(kubectl get pod {pod} -o json))
+    print('  containers')
+    for container in pod_data['spec']['containers']:
+        if 'limits' in container["resources"].keys():
+            print(f'    limits   : {container["resources"]["limits"]}')
+        if 'requests' in container["resources"].keys():
+            print(f'    requests : {container["resources"]["requests"]}')
+    if 'initContainers' in pod_data['spec'].keys():
+        print('  init containers')
+        for init_container in pod_data['spec']['containers']:
+            if 'limits' in init_container["resources"].keys():
+                print(f'    limits   : {init_container["resources"]["limits"]}')
+            if 'requests' in init_container["resources"].keys():
+                print(f'    requests : {init_container["resources"]["requests"]}')

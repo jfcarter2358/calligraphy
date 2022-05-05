@@ -21,3 +21,4 @@ Contents
    usage
    writing
    reference
+   examples

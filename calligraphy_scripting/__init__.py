@@ -1,3 +1,5 @@
 """Calligraphy script runner"""
 
-__version__ = "1.0.0"
+from calligraphy_scripting import runner
+
+__version__ = "1.1.1"
