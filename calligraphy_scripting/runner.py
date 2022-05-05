@@ -5,13 +5,13 @@ import traceback
 
 here = os.path.dirname(os.path.abspath(__file__))
 
+
 def execute(contents: str) -> None:
     """Run Calligraphy code from another program
 
     Args:
         code (str): The Calligraphy code to run
     """
-
 
     # Process the contents
     contents, inline_indices = parser.handle_line_breaks(contents)
