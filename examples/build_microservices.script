@@ -1,0 +1,102 @@
+#! /usr/bin/env calligraphy
+# type: ignore
+
+# This file builds either locally or via Docker depending on the release mode
+# It's a modified version of the studfile commands in Velocimodel
+
+def clean():
+    # Remove any existing build artifacts
+    rm -r dist || true
+    rm -r release || true
+    rm -r src/frontend/ui-dist || true
+
+def build_docker(services: list) => None:
+    """Build docker images of various services
+
+    Args:
+        services (list): List of services to build
+    """
+
+    clean()
+
+    version = $(cat VERSION) 
+
+    if 'frontend' in services:
+        # Compile the frontend with web-source-compiler
+        wsc compile
+        # Copy the Monaco editor to a usable location
+        cp -r src/frontend/ui/node-modules/monaco-editor src/frontend/ui-dist/static/js/monaco-editor
+
+    if 'service-manager' in services:
+        # Copy over service-manager config
+        cp -n data/service-manager/config.json.bak data/service-manager/config.json || true
+        cp -n data/service-manager/secrets.json.bak data/service-manager/secrets.json || true
+
+    # Loop through and build all services
+    for service in services:
+        docker build -t {service}:{version} -f src/{service}/Dockerfile .
+
+    print('Done!')
+
+def build_local(services: list) => None:
+    """Build local binaries of various services
+
+    Args:
+        services (list): List of services to build
+    """
+
+    clean()
+
+    mkdir dist
+
+    for service in services:
+        # Compile each service and place it in correct directory
+        cd src/{service}
+        env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -v -o {service}
+        mkdir ../../dist/{service}
+        mv {service} ../../dist/{service}/{service}
+        cp launch.sh ../../dist/{service}/launch-{service}.sh
+        chmod +x ../../dist/{service}/launch-{service}.sh
+        cd ../..
+
+    if 'service-manager' in services:
+        # Copy over service-manager specific items
+        cp -n data/service-manager/config.json.bak data/service-manager/config.json || true
+        cp -n data/service-manager/secrets.json.bak data/service-manager/secrets.json || true
+        cp -r data/service-manager dist/service-manager/data
+
+    if 'frontend' in services:
+        # Compile the frontend
+        wsc compile
+        # Copy over required files
+        cp -r src/frontend/ui-dist/templates dist/templates
+        cp -r src/frontend/ui-dist/static dist/static
+        cp -r src/frontend/ui/node-modules/monaco-editor dist/static/js/monaco-editor
+
+    if 'auth-manager' in services:
+        # Copy over auth-manager config
+        cp -r data/auth-manager dist/auth-manager/data
+
+    print('Done!')
+
+all_services = [
+    'api-server',
+    'asset-manager',
+    'auth-manager',
+    'frontend',
+    'model-manager',
+    'service-manager'
+]
+
+# Determine which services we want to build
+services = env.BUILD_SERVICES.split(',')
+
+if 'all' in services:
+    services = all_services
+
+if env.BUILD_MATURITY == 'dev':
+    build_local()
+elif env.BUILD_MATURITY == 'release':
+    build_release()
+
+

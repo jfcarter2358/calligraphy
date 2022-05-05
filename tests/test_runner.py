@@ -49,7 +49,7 @@ def test_execute(capfd):
     with open(os.path.join(here, 'data', 'test7.script')) as script_file:
         script = script_file.read()
 
-    runner.execute(script)
+    runner.execute(script, [])
     out, _ = capfd.readouterr()
 
     assert escape_ansi(out) == execute_out

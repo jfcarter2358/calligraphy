@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 import os
 from calligraphy_scripting import transpiler
+from calligraphy_scripting import utils
 
 
 def handle_sourcing(contents: str) -> str:
@@ -18,7 +19,6 @@ def handle_sourcing(contents: str) -> str:
     """
 
     def compile_sourced(matches):
-        here = os.path.dirname(os.path.abspath(__file__))
         for match in matches:
             with open(
                 os.path.join(match[0], f"{match[1]}.{match[2]}"), encoding="utf-8"
@@ -29,10 +29,7 @@ def handle_sourcing(contents: str) -> str:
             transpiled = transpiler.transpile(lines, langs, inline_indices)
 
             # Add the header to enable functionality
-            with open(
-                os.path.join(here, "data", "header.py"), encoding="utf-8"
-            ) as header_file:
-                header = header_file.read()
+            header = utils.load_header()
             header = header.replace('sys.argv = "PROGRAM_ARGS"', "")
             code = f"{header}\n\n{transpiled}"
             with open(

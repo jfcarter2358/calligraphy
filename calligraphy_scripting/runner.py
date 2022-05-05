@@ -1,16 +1,21 @@
+# pylint: disable=R0801, W0703, W0122
+"""Module to allow for running Calligraphy scripts from other Python programs"""
+import os
+import sys
+import traceback
 from calligraphy_scripting import parser
 from calligraphy_scripting import transpiler
-import os
-import traceback
+from calligraphy_scripting import utils
 
 here = os.path.dirname(os.path.abspath(__file__))
 
 
-def execute(contents: str) -> None:
+def execute(contents: str, args: list) -> None:
     """Run Calligraphy code from another program
 
     Args:
-        code (str): The Calligraphy code to run
+        contents (str): The Calligraphy code to run
+        args: (list): The arguments to pass to the script
     """
 
     # Process the contents
@@ -20,15 +25,16 @@ def execute(contents: str) -> None:
     transpiled = transpiler.transpile(lines, langs, inline_indices)
 
     # Add the header to enable functionality
-    with open(os.path.join(here, "data", "header.py"), encoding="utf-8") as header_file:
-        header = header_file.read()
-    header = header.replace('"PROGRAM_ARGS"', str([]))
+    header = utils.load_header()
+    header = header.replace('"PROGRAM_ARGS"', str(args))
     code = f"{header}\n\n{transpiled}"
 
     # Run the code
     try:
         exec(code, globals())
-    except Exception:
+    except KeyboardInterrupt:
+        sys.exit()
+    except Exception as exception:
         trace = traceback.format_exc()
         parts = trace.split("\n")
         idx = 1
@@ -39,3 +45,4 @@ def execute(contents: str) -> None:
             exception_out.append(parts[idx])
             idx += 1
         print("\n".join(exception_out))
+        raise exception
