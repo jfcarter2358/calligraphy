@@ -31,4 +31,4 @@ docs:  ##        Generate documentation for calligraphy
 
 release:  ##     Release the current version of calligraphy
 	poetry build
-	poetry publish
+	poetry publish -u "__token__" -p "$${PYPI_PASSWORD}"
