@@ -1,4 +1,4 @@
-# pylint: disable=C0301, R1702, R0912, R0914, R0915, W1401
+# pylint: disable=C0301, R1702, R0912, R0914, R0915, W1401, C0206
 """Module to parse Calligraphy scripts into token representation"""
 
 from __future__ import annotations
@@ -233,7 +233,7 @@ def determine_language(
     assignment_pattern = r"^[ \t]*\(?((?:[a-zA-Z0-9_]+\s*,?\s*)+)\)?[ \t]$"
 
     lines = [line for line in code.split("\n") if len(line.strip()) > 0]
-    variables = ["env.", "shellopts."]
+    variables = ["env", "shellopts"]
     langs = []
     imports = get_imports(code)
     functions = get_functions(code)
@@ -244,20 +244,22 @@ def determine_language(
         if stripped.startswith("#") or stripped.startswith('"""'):
             langs.append("COMMENT")
             continue
+
+        parts = get_parts(stripped)
         for keyword in keywords:
-            if stripped.startswith(keyword):
+            if parts[0] == keyword:
                 is_python = True
                 break
         for var in variables:
-            if stripped.startswith(var):
+            if parts[0] == var:
                 is_python = True
                 break
         for imp in imports:
-            if stripped.startswith(imp):
+            if parts[0] == imp:
                 is_python = True
                 break
         for func in functions:
-            if stripped.startswith(func):
+            if parts[0] == func:
                 is_python = True
                 break
         if not is_python:
@@ -393,3 +395,96 @@ def handle_line_breaks(code: str) -> str:
         output += token
         char_idx += 1
     return output, inline_indices
+
+
+def get_in_depths(ignore: str, depths: dict) -> bool:
+    """Determine if all depths other than ignore key are 0
+
+    Args:
+        ignore (str): Key to not check for depth
+        depths (dict): Depths dictionary to check
+
+    Returns:
+        bool: Are all other depths 0
+    """
+
+    for key in depths:
+        if key == ignore:
+            continue
+        if depths[key] > 0:
+            return True
+    return False
+
+
+def get_parts(line: str) -> list[str]:
+    """Get parts of line broken by spaces and special characters
+
+    Args:
+        line (str): Line of code to split
+
+    Returns:
+        list[str]: List of split out tokens
+    """
+
+    output = []
+    buffer = ""
+    depths = {
+        "double_quote": 0,
+        "single_quote": 0,
+        "colon": 0,
+        "paren": 0,
+        "brace": 0,
+        "bracket": 0,
+    }
+    chars = {
+        "double_quote": {"char": '"'},
+        "single_quote": {"char": "'"},
+        "colon": {"char": ":"},
+        "paren": {"start": "(", "end": ")"},
+        "brace": {"start": "{", "end": "}"},
+        "bracket": {"start": "[", "end": "]"},
+    }
+
+    look_behind = ""
+    for idx, token in enumerate(line):
+        if idx > 0:
+            look_behind = line[idx - 1]
+        if token in [" ", "."]:
+            if buffer != "":
+                output.append(buffer)
+                buffer = ""
+            continue
+        special = False
+        for key in depths:
+            if not get_in_depths(key, depths):
+                if key in ["double_quote", "single_quote", "colon"]:
+                    if token == chars[key]["char"] and look_behind != "\\":
+                        if not key in ["colon"]:
+                            buffer += token
+                        if depths[key] == 0:
+                            depths[key] += 1
+                        else:
+                            depths[key] -= 1
+                            output.append(buffer)
+                            buffer = ""
+                        special = True
+                else:
+                    if token == chars[key]["start"]:
+                        if depths[key] == 0:
+                            output.append(buffer)
+                            buffer = ""
+                        depths[key] += 1
+                        buffer += chars[key]["start"]
+                        special = True
+                    elif token == chars[key]["end"]:
+                        depths[key] -= 1
+                        buffer += chars[key]["end"]
+                        if depths[key] == 0:
+                            output.append(buffer)
+                            buffer = ""
+                        special = True
+        if not special:
+            buffer += token
+    if buffer != "":
+        output.append(buffer)
+    return output
