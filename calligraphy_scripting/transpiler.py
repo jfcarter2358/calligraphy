@@ -100,4 +100,5 @@ def transpile(lines: list[str], langs: list[str], inline_indices: list[str]) -> 
                 output += f'{line[:inline_idx[1]]}shell("{base64_cmd}", get_stdout=True, silent={raw[0]=="?"}, format_dict={{**globals(), **locals()}}){line[inline_idx[2]:]}\n'
 
     output = output.replace("<CALLIGRAPHY_NEWLINE>", "\n")
+
     return output

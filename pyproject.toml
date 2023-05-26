@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "calligraphy-scripting"
-version = "1.1.3"
+version = "1.1.4"
 description = "A hybrid language for a modern approach to shell scripting"
 authors = ["John Carter <jfcarter2358@gmail.com>"]
 license = "MIT"
